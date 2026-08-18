@@ -1,0 +1,37 @@
+[
+  {
+    "id": "acc_hdfc",
+    "name": "HDFC Bank",
+    "type": "bank",
+    "institution": "HDFC Bank",
+    "initial_balance": 42000,
+    "currency": "INR",
+    "status": "active"
+  },
+  {
+    "id": "acc_icici",
+    "name": "ICICI Bank",
+    "type": "savings",
+    "institution": "ICICI Bank",
+    "initial_balance": 18000,
+    "currency": "INR",
+    "status": "active"
+  },
+  {
+    "id": "acc_cash",
+    "name": "Cash",
+    "type": "cash",
+    "initial_balance": 5000,
+    "currency": "INR",
+    "status": "active"
+  },
+  {
+    "id": "acc_credit_card",
+    "name": "Credit Card",
+    "type": "credit_card",
+    "institution": "HDFC Bank",
+    "initial_balance": 0,
+    "currency": "INR",
+    "status": "active"
+  }
+]

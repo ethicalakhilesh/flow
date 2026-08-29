@@ -18,7 +18,7 @@ Open http://localhost:3000 — it redirects to `/dashboard`.
 - **Add Transaction**: expense/income toggle, numeric keypad, category, account, date, note
 - **Transactions**: searchable, filterable list (all / income / expense)
 - **Accounts**: balances derived automatically as `initial_balance + income − expenses`
-- **PWA**: installable via `public/manifest.json` (icons are placeholders — swap `public/icons/icon-192.png` and `icon-512.png` for your own)
+- **PWA**: installable via `public/manifest.json`, icon sourced entirely from `public/icons/icon.svg` — one file, referenced everywhere (manifest, favicon, apple touch icon, sidebar logo). Swap that single file to rebrand.
 
 ## Data model (`src/data/*.json`)
 
@@ -50,6 +50,12 @@ Everything reads through `src/lib/finance.ts`. To swap JSON for Airtable:
 
 - `REFERENCE_DATE` in `src/app/dashboard/page.tsx` is hardcoded to match the
   sample data's month — swap for `new Date()` once real data is flowing.
-- PWA icons in `public/icons/` are solid-color placeholders.
 - No auth yet — fine for personal use behind Vercel's own URL, but add at
   least a PIN gate before sharing the link anywhere.
+- The app icon is SVG-only by design (single file, referenced everywhere).
+  Most browsers and Android now render SVG manifest icons and favicons fine.
+  iOS Safari's "Add to Home Screen" icon is the one exception — it still
+  expects a raster PNG for `apple-touch-icon` and may fall back to a blank
+  or default icon there. If the home-screen icon on iPhone matters to you,
+  the fix later is a single PNG export of `icon.svg`, still generated from
+  that one file.

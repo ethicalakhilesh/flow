@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   description: "Track income, expenses, and balances across all your accounts.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/icon-192.png",
-    apple: "/icons/icon-192.png",
+    icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
+    apple: "/icons/icon.svg",
   },
 };
 

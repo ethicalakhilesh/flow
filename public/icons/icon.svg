@@ -1,0 +1,35 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="904" y2="944" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#063B44"/>
+      <stop offset="1" stop-color="#0B5960"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="280" y1="250" x2="720" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#BDEBD9"/>
+      <stop offset="0.55" stop-color="#54D0A8"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="64" y="64" width="896" height="896" rx="230" fill="url(#bg)"/>
+
+  <!-- Minimal flowing F -->
+  <path
+    d="M300 742C330 585 389 473 510 396C590 345 665 308 736 270
+       C704 381 633 454 523 501C435 539 371 608 330 742H300Z"
+    fill="url(#mark)"
+  />
+  <path
+    d="M294 605C322 456 398 356 518 296C591 260 660 239 732 224
+       C702 324 639 388 538 426C443 462 365 521 324 605H294Z"
+    fill="url(#mark)"
+  />
+
+  <!-- Clean negative-space divider -->
+  <path
+    d="M372 518C448 476 520 452 606 438C566 478 516 514 449 546
+       C416 562 388 582 364 608C366 576 369 547 372 518Z"
+    fill="#063B44"
+    opacity="0.94"
+  />
+</svg>

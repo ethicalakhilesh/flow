@@ -21,8 +21,8 @@
   { "id": "txn_020", "account_id": "acc_cash", "type": "expense", "amount": 640, "category_id": "cat_transport", "date": "2026-05-10", "note": "Metro card top-up", "created_at": "2026-05-10T08:30:00.000Z" },
   { "id": "txn_021", "account_id": "acc_hdfc", "type": "expense", "amount": 6100, "category_id": "cat_shopping", "date": "2026-05-09", "note": "Home essentials", "created_at": "2026-05-09T13:00:00.000Z" },
   { "id": "txn_022", "account_id": "acc_credit_card", "type": "expense", "amount": 3300, "category_id": "cat_food", "date": "2026-05-08", "note": "Weekend brunch", "created_at": "2026-05-08T11:00:00.000Z" },
-  { "id": "txn_023", "account_id": "acc_icici", "type": "income", "amount": 4500, "category_id": "cat_investment", "date": "2026-05-07", "note": "Dividend payout", "created_at": "2026-05-07T09:00:00.000Z" },
-  { "id": "txn_024", "account_id": "acc_hdfc", "type": "expense", "amount": 1680, "category_id": "cat_bills", "date": "2026-05-06", "note": "Mobile recharge", "created_at": "2026-05-06T10:00:00.000Z" },
-  { "id": "txn_025", "account_id": "acc_cash", "type": "expense", "amount": 1900, "category_id": "cat_entertainment", "date": "2026-05-05", "note": "Concert tickets", "created_at": "2026-05-05T18:00:00.000Z" },
-  { "id": "txn_026", "account_id": "acc_hdfc", "type": "expense", "amount": 12000, "category_id": "cat_bills", "date": "2026-06-05", "note": "Credit card bill payment", "created_at": "2026-06-05T09:00:00.000Z" }
+  { "id": "txn_023", "account_id": "acc_icici", "type": "income", "amount": 4500, "category_id": "cat_investment", "date": "2026-05-07", "note": "Dividend payout", "created_at": "2026-06-07T09:00:00.000Z" },
+  { "id": "txn_024", "account_id": "acc_hdfc", "type": "expense", "amount": 1680, "category_id": "cat_bills", "date": "2026-05-06", "note": "Mobile recharge", "created_at": "2026-06-06T10:00:00.000Z" },
+  { "id": "txn_025", "account_id": "acc_cash", "type": "expense", "amount": 1900, "category_id": "cat_entertainment", "date": "2026-05-05", "note": "Concert tickets", "created_at": "2026-07-05T18:00:00.000Z" },
+  { "id": "txn_026", "account_id": "acc_hdfc", "type": "expense", "amount": 12000, "category_id": "cat_bills", "date": "2026-06-05", "note": "Credit card bill payment", "created_at": "2026-08-05T09:00:00.000Z" }
 ]

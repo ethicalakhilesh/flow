@@ -169,6 +169,33 @@ export function formatCurrency(amount: number, currency = "INR"): string {
   return formatter.format(amount);
 }
 
+export interface MonthOption {
+  key: string; // "2026-05"
+  year: number;
+  month: number; // 0-indexed
+  label: string; // "May 2026"
+}
+
+/** Distinct year-month combinations present in the transaction data, newest first. */
+export function getAvailableMonths(transactions: Transaction[]): MonthOption[] {
+  const seen = new Map<string, MonthOption>();
+  for (const t of transactions) {
+    const d = new Date(t.date);
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const key = `${year}-${String(month + 1).padStart(2, "0")}`;
+    if (!seen.has(key)) {
+      seen.set(key, {
+        key,
+        year,
+        month,
+        label: d.toLocaleDateString("en-IN", { month: "long", year: "numeric" }),
+      });
+    }
+  }
+  return Array.from(seen.values()).sort((a, b) => (a.key < b.key ? 1 : -1));
+}
+
 export function formatShortDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-IN", {
     month: "short",

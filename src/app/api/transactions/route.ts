@@ -33,6 +33,12 @@ export async function POST(request: NextRequest) {
     date: body.date,
     note: body.note || undefined,
     created_at: new Date().toISOString(),
+    raw_data: {
+      merchant: body.merchant || undefined,
+      category_id: body.category_id,
+      note: body.note || undefined,
+    },
+    edited: false,
   };
 
   transactions.push(newTransaction);

@@ -7,7 +7,13 @@
     "category_id": "cat_salary",
     "date": "2026-05-01",
     "note": "May salary",
-    "created_at": "2026-05-01T09:00:00.000Z"
+    "created_at": "2026-05-01T09:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_salary",
+      "note": "May salary"
+    },
+    "edited": false
   },
   {
     "id": "txn_002",
@@ -17,7 +23,13 @@
     "category_id": "cat_freelance",
     "date": "2026-05-03",
     "note": "Client project payout",
-    "created_at": "2026-05-03T14:20:00.000Z"
+    "created_at": "2026-05-03T14:20:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_freelance",
+      "note": "Client project payout"
+    },
+    "edited": false
   },
   {
     "id": "txn_003",
@@ -28,7 +40,13 @@
     "date": "2026-05-24",
     "note": "Starbucks Coffee",
     "created_at": "2026-05-24T10:30:00.000Z",
-    "merchant": "Starbucks"
+    "merchant": "Starbucks",
+    "raw_data": {
+      "merchant": "Starbucks",
+      "category_id": "cat_food",
+      "note": "Starbucks Coffee"
+    },
+    "edited": false
   },
   {
     "id": "txn_004",
@@ -39,7 +57,13 @@
     "date": "2026-05-24",
     "note": "Uber ride",
     "created_at": "2026-05-24T08:45:00.000Z",
-    "merchant": "Uber"
+    "merchant": "Uber",
+    "raw_data": {
+      "merchant": "Uber",
+      "category_id": "cat_transport",
+      "note": "Uber ride"
+    },
+    "edited": false
   },
   {
     "id": "txn_005",
@@ -50,7 +74,13 @@
     "date": "2026-05-23",
     "note": "Amazon shopping",
     "created_at": "2026-05-23T21:30:00.000Z",
-    "merchant": "Amazon"
+    "merchant": "Amazon",
+    "raw_data": {
+      "merchant": "Amazon",
+      "category_id": "cat_shopping",
+      "note": "Amazon shopping"
+    },
+    "edited": false
   },
   {
     "id": "txn_006",
@@ -61,7 +91,13 @@
     "date": "2026-05-23",
     "note": "BigBasket groceries",
     "created_at": "2026-05-23T19:10:00.000Z",
-    "merchant": "BigBasket"
+    "merchant": "BigBasket",
+    "raw_data": {
+      "merchant": "BigBasket",
+      "category_id": "cat_food",
+      "note": "BigBasket groceries"
+    },
+    "edited": false
   },
   {
     "id": "txn_007",
@@ -71,7 +107,13 @@
     "category_id": "cat_bills",
     "date": "2026-05-22",
     "note": "Electricity bill",
-    "created_at": "2026-05-22T11:00:00.000Z"
+    "created_at": "2026-05-22T11:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_bills",
+      "note": "Electricity bill"
+    },
+    "edited": false
   },
   {
     "id": "txn_008",
@@ -82,7 +124,13 @@
     "date": "2026-05-22",
     "note": "PhonePe recharge",
     "created_at": "2026-05-22T09:15:00.000Z",
-    "merchant": "PhonePe"
+    "merchant": "PhonePe",
+    "raw_data": {
+      "merchant": "PhonePe",
+      "category_id": "cat_bills",
+      "note": "PhonePe recharge"
+    },
+    "edited": false
   },
   {
     "id": "txn_009",
@@ -93,7 +141,13 @@
     "date": "2026-05-23",
     "note": "Swiggy order",
     "created_at": "2026-05-23T20:15:00.000Z",
-    "merchant": "Swiggy"
+    "merchant": "Swiggy",
+    "raw_data": {
+      "merchant": "Swiggy",
+      "category_id": "cat_shopping",
+      "note": "Swiggy order"
+    },
+    "edited": false
   },
   {
     "id": "txn_010",
@@ -103,7 +157,13 @@
     "category_id": "cat_food",
     "date": "2026-05-20",
     "note": "Dinner with friends",
-    "created_at": "2026-05-20T20:00:00.000Z"
+    "created_at": "2026-05-20T20:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_food",
+      "note": "Dinner with friends"
+    },
+    "edited": false
   },
   {
     "id": "txn_011",
@@ -113,7 +173,13 @@
     "category_id": "cat_transport",
     "date": "2026-05-19",
     "note": "Fuel",
-    "created_at": "2026-05-19T08:00:00.000Z"
+    "created_at": "2026-05-19T08:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_transport",
+      "note": "Fuel"
+    },
+    "edited": false
   },
   {
     "id": "txn_012",
@@ -123,7 +189,13 @@
     "category_id": "cat_entertainment",
     "date": "2026-05-18",
     "note": "Movie night + dinner",
-    "created_at": "2026-05-18T22:00:00.000Z"
+    "created_at": "2026-05-18T22:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_entertainment",
+      "note": "Movie night + dinner"
+    },
+    "edited": false
   },
   {
     "id": "txn_013",
@@ -133,7 +205,13 @@
     "category_id": "cat_healthcare",
     "date": "2026-05-17",
     "note": "Pharmacy",
-    "created_at": "2026-05-17T17:30:00.000Z"
+    "created_at": "2026-05-17T17:30:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_healthcare",
+      "note": "Pharmacy"
+    },
+    "edited": false
   },
   {
     "id": "txn_014",
@@ -144,7 +222,13 @@
     "date": "2026-05-16",
     "note": "Netflix + Spotify",
     "created_at": "2026-05-16T10:00:00.000Z",
-    "merchant": "Netflix"
+    "merchant": "Netflix",
+    "raw_data": {
+      "merchant": "Netflix",
+      "category_id": "cat_entertainment",
+      "note": "Netflix + Spotify"
+    },
+    "edited": false
   },
   {
     "id": "txn_015",
@@ -154,7 +238,13 @@
     "category_id": "cat_food",
     "date": "2026-05-15",
     "note": "Weekly groceries",
-    "created_at": "2026-05-15T12:00:00.000Z"
+    "created_at": "2026-05-15T12:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_food",
+      "note": "Weekly groceries"
+    },
+    "edited": false
   },
   {
     "id": "txn_016",
@@ -164,7 +254,13 @@
     "category_id": "cat_shopping",
     "date": "2026-05-14",
     "note": "New shoes",
-    "created_at": "2026-05-14T16:00:00.000Z"
+    "created_at": "2026-05-14T16:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_shopping",
+      "note": "New shoes"
+    },
+    "edited": false
   },
   {
     "id": "txn_017",
@@ -175,7 +271,13 @@
     "date": "2026-05-13",
     "note": "Zomato order",
     "created_at": "2026-05-13T21:00:00.000Z",
-    "merchant": "Zomato"
+    "merchant": "Zomato",
+    "raw_data": {
+      "merchant": "Zomato",
+      "category_id": "cat_food",
+      "note": "Zomato order"
+    },
+    "edited": false
   },
   {
     "id": "txn_018",
@@ -185,7 +287,13 @@
     "category_id": "cat_bills",
     "date": "2026-05-12",
     "note": "Internet bill",
-    "created_at": "2026-05-12T09:00:00.000Z"
+    "created_at": "2026-05-12T09:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_bills",
+      "note": "Internet bill"
+    },
+    "edited": false
   },
   {
     "id": "txn_019",
@@ -195,7 +303,13 @@
     "category_id": "cat_education",
     "date": "2026-05-11",
     "note": "Online course",
-    "created_at": "2026-05-11T14:00:00.000Z"
+    "created_at": "2026-05-11T14:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_education",
+      "note": "Online course"
+    },
+    "edited": false
   },
   {
     "id": "txn_020",
@@ -205,7 +319,13 @@
     "category_id": "cat_transport",
     "date": "2026-05-10",
     "note": "Metro card top-up",
-    "created_at": "2026-05-10T08:30:00.000Z"
+    "created_at": "2026-05-10T08:30:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_transport",
+      "note": "Metro card top-up"
+    },
+    "edited": false
   },
   {
     "id": "txn_021",
@@ -215,7 +335,13 @@
     "category_id": "cat_shopping",
     "date": "2026-05-09",
     "note": "Home essentials",
-    "created_at": "2026-05-09T13:00:00.000Z"
+    "created_at": "2026-05-09T13:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_shopping",
+      "note": "Home essentials"
+    },
+    "edited": false
   },
   {
     "id": "txn_022",
@@ -225,7 +351,13 @@
     "category_id": "cat_food",
     "date": "2026-05-08",
     "note": "Weekend brunch",
-    "created_at": "2026-05-08T11:00:00.000Z"
+    "created_at": "2026-05-08T11:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_food",
+      "note": "Weekend brunch"
+    },
+    "edited": false
   },
   {
     "id": "txn_023",
@@ -235,7 +367,13 @@
     "category_id": "cat_investment",
     "date": "2026-05-07",
     "note": "Dividend payout",
-    "created_at": "2026-05-07T09:00:00.000Z"
+    "created_at": "2026-05-07T09:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_investment",
+      "note": "Dividend payout"
+    },
+    "edited": false
   },
   {
     "id": "txn_024",
@@ -245,7 +383,13 @@
     "category_id": "cat_bills",
     "date": "2026-05-06",
     "note": "Mobile recharge",
-    "created_at": "2026-05-06T10:00:00.000Z"
+    "created_at": "2026-05-06T10:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_bills",
+      "note": "Mobile recharge"
+    },
+    "edited": false
   },
   {
     "id": "txn_025",
@@ -255,7 +399,13 @@
     "category_id": "cat_entertainment",
     "date": "2026-05-05",
     "note": "Concert tickets",
-    "created_at": "2026-05-05T18:00:00.000Z"
+    "created_at": "2026-05-05T18:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_entertainment",
+      "note": "Concert tickets"
+    },
+    "edited": false
   },
   {
     "id": "txn_026",
@@ -265,6 +415,12 @@
     "category_id": "cat_bills",
     "date": "2026-06-05",
     "note": "Credit card bill payment",
-    "created_at": "2026-06-05T09:00:00.000Z"
+    "created_at": "2026-06-05T09:00:00.000Z",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_bills",
+      "note": "Credit card bill payment"
+    },
+    "edited": false
   }
 ]

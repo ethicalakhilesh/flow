@@ -70,6 +70,25 @@ visually until you actually map a merchant. Add one by dropping a file in
 `public/icons/merchants/` (or pasting a hosted URL) and adding a line to
 `MERCHANT_ICON_MAP`.
 
+## Transaction detail & editing
+
+Clicking any transaction (dashboard or the Transactions list) opens
+`/transactions/[id]`, showing transaction ID, date, time (from
+`created_at`), type, source account, note, and category. `merchant` and
+`category_id` are editable there — saving hits `PATCH
+/api/transactions/[id]`, which only ever touches those two fields.
+
+Every transaction also carries a `raw_data` snapshot (`merchant`,
+`category_id`, `note` as originally parsed/entered) that this route never
+writes to, so it stays as a reference to the original values no matter how
+many times you correct the merchant name or category. An "Edited" badge
+shows on the detail page once a transaction has been changed from its
+original raw_data.
+
+Same local-filesystem caveat as the create route: this only persists while
+running `next dev`/`next start` locally, not on Vercel — swap for an
+Airtable `update` request during the Phase 2 migration.
+
 ## Transaction filters
 
 `src/lib/transactionFilters.ts` holds the filtering logic (pure functions,
@@ -85,7 +104,7 @@ live — no separate "Apply" step, results update as you toggle:
   a Source resets the account selection back to "all" for that source.
 - **Date** — Any / on a specific date / within ± N days of a date / a date
   range.
-- **Amount** — Any / an exact amount / a min–max range.
+- **Amount** — Any / equals a specific amount / a min–max range.
 - **Category** — multi-select, but the option list itself is filtered:
   `getAvailableCategories()` only offers categories that still have at
   least one matching transaction under the *other* active filters, so you

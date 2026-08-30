@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Transaction } from "@/lib/types";
 import { formatCurrency, formatShortDate, getCategoryById } from "@/lib/finance";
 import MerchantIcon from "./MerchantIcon";
@@ -7,7 +8,10 @@ export default function TransactionRow({ transaction }: { transaction: Transacti
   const isIncome = transaction.type === "income";
 
   return (
-    <div className="flex items-center gap-3 py-2.5">
+    <Link
+      href={`/transactions/${transaction.id}`}
+      className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-canvas"
+    >
       <MerchantIcon merchant={transaction.merchant} category={category} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium text-ink">
@@ -25,6 +29,6 @@ export default function TransactionRow({ transaction }: { transaction: Transacti
         {isIncome ? "+" : "−"}
         {formatCurrency(transaction.amount)}
       </div>
-    </div>
+    </Link>
   );
 }

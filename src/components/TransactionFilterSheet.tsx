@@ -242,7 +242,7 @@ export default function TransactionFilterSheet({
               onChange={(mode) => patch({ amount: { ...filters.amount, mode } })}
               options={[
                 { label: "Any", value: "none" },
-                { label: "Exact", value: "exact" },
+                { label: "Equals", value: "exact" },
                 { label: "Range", value: "range" },
               ]}
             />

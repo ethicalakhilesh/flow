@@ -22,6 +22,19 @@ export interface Transaction {
   date: string; // ISO date, e.g. 2026-05-24
   note?: string;
   created_at: string;
+  /**
+   * Immutable snapshot of merchant/category/note as originally parsed or
+   * entered. Editing `merchant`/`category_id` above never touches this —
+   * it's the "what the bank/PDF actually said" record, kept for reference
+   * even after you've cleaned up the tracked category or merchant name.
+   */
+  raw_data?: {
+    merchant?: string;
+    category_id?: string;
+    note?: string;
+    source_text?: string; // raw parsed statement line, once the PDF pipeline is wired in
+  };
+  edited?: boolean; // true once merchant/category has been manually corrected from raw_data
 }
 
 export interface Category {

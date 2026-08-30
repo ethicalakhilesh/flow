@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, IdCard, CalendarClock } from "lucide-react";
+import { ChevronLeft, CreditCard, CalendarClock } from "lucide-react";
 import {
   getProgramById,
   programBalance,
@@ -64,7 +64,7 @@ export default function MembershipDetailPage({ params }: { params: { id: string 
       <div className="mb-4 divide-y divide-border rounded-xl2 border border-border bg-surface shadow-card">
         {program.member_id && (
           <div className="flex items-center gap-3 px-4 py-3">
-            <IdCard size={16} className="shrink-0 text-muted" />
+            <CreditCard size={16} className="shrink-0 text-muted" />
             <span className="text-sm text-muted">Member ID</span>
             <span className="ml-auto text-sm font-medium text-ink">{program.member_id}</span>
           </div>

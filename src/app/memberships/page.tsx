@@ -1,13 +1,12 @@
 import { Plus } from "lucide-react";
-import { getLoyaltyPrograms } from "@/lib/loyalty";
-import { groupByCategory, CATEGORY_LABEL, isExpiringSoon } from "@/lib/loyalty";
+import { getProgramsWithBalances, groupByCategory, CATEGORY_LABEL, isExpiringSoon } from "@/lib/loyalty";
 import LoyaltyCard from "@/components/LoyaltyCard";
 import type { LoyaltyCategory } from "@/lib/types";
 
 const CATEGORY_ORDER: LoyaltyCategory[] = ["airline", "hotel", "other"];
 
 export default function MembershipsPage() {
-  const programs = getLoyaltyPrograms();
+  const programs = getProgramsWithBalances();
   const grouped = groupByCategory(programs);
   const expiringCount = programs.filter((p) => isExpiringSoon(p.expiry_date)).length;
 

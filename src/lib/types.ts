@@ -39,12 +39,24 @@ export type LoyaltyCategory = "airline" | "hotel" | "other";
 
 export interface LoyaltyProgram {
   id: string;
-  name: string; // e.g. "United MileagePlus"
+  brand: string; // e.g. "British Airways" — used for icon lookup
+  program_name: string; // e.g. "Executive Club"
+  points_name: string; // the actual currency: "Avios", "SuperCoins", "BlueChips", etc.
   category: LoyaltyCategory;
   member_id?: string;
-  points_balance: number;
-  points_unit: string; // "miles", "points", "nights", etc.
+  starting_balance: number; // balance before the earliest tracked transaction
   tier?: string; // e.g. "Gold", "Platinum"
   expiry_date?: string; // ISO date - points or tier expiry, if applicable
   notes?: string;
+}
+
+export type LoyaltyTransactionType = "earned" | "redeemed" | "expired" | "adjusted" | "transferred";
+
+export interface LoyaltyTransaction {
+  id: string;
+  program_id: string;
+  type: LoyaltyTransactionType;
+  points: number; // always positive; sign is derived from `type`
+  date: string; // ISO date
+  description?: string; // e.g. "Flight BLR–LHR", "Redeemed for hotel stay"
 }

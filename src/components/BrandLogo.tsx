@@ -35,7 +35,7 @@ export default function BrandLogo({
       height={size}
       loading="lazy"
       onError={() => setErrored(true)}
-      className={`shrink-0 rounded-full bg-canvas object-cover ${className}`}
+      className={`shrink-0 bg-canvas object-cover rounded-[22%] ${className}`}
       style={{ width: size, height: size }}
     />
   );

@@ -26,7 +26,7 @@ export default function AccountCard({ account }: { account: AccountWithBalance }
       {iconUrl ? (
         <BrandLogo src={iconUrl} fallbackSrc={DEFAULT_BANK_ICON} size={36} />
       ) : (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-canvas text-muted">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[22%] bg-canvas text-muted">
           {account.type === "cash" || account.type === "wallet" ? (
             <Wallet size={17} strokeWidth={2.25} />
           ) : (

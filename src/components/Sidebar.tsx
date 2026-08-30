@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   LayoutDashboard,
   ArrowLeftRight,
   Wallet,
+  Award,
   Settings,
-  Waves,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/accounts", label: "Accounts", icon: Wallet },
+  { href: "/memberships", label: "Memberships", icon: Award },
 ];
 
 export default function Sidebar() {
@@ -22,9 +24,7 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-border md:bg-surface md:px-4 md:py-6">
       <div className="flex items-center gap-2 px-2 pb-8">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
-          <Waves size={18} strokeWidth={2.5} />
-        </div>
+        <Image src="/icons/icon.svg" alt="" width={36} height={36} className="rounded-xl" />
         <span className="font-display text-lg font-bold text-ink">Flow</span>
       </div>
 

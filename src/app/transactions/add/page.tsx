@@ -19,6 +19,7 @@ export default function AddTransactionPage() {
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState("");
+  const [merchant, setMerchant] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,6 +66,7 @@ export default function AddTransactionPage() {
           category_id: categoryId,
           date,
           note,
+          merchant: merchant || undefined,
         }),
       });
       if (!res.ok) throw new Error("Failed to save transaction");
@@ -160,6 +162,17 @@ export default function AddTransactionPage() {
             value={date}
             onChange={(e) => setDate(e.target.value)}
             className="bg-transparent text-right text-sm font-medium text-ink focus:outline-none"
+          />
+        </label>
+
+        <label className="flex items-center justify-between gap-3 px-4 py-3">
+          <span className="text-sm text-muted">Merchant</span>
+          <input
+            type="text"
+            value={merchant}
+            onChange={(e) => setMerchant(e.target.value)}
+            placeholder="e.g. Starbucks (optional)"
+            className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink placeholder:text-muted placeholder:font-normal focus:outline-none"
           />
         </label>
 

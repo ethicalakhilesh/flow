@@ -1,0 +1,26 @@
+[
+  { "id": "lt_001", "program_id": "loy_001", "type": "earned", "points": 3500, "date": "2026-05-02", "description": "Flight BLR–DEL" },
+  { "id": "lt_002", "program_id": "loy_001", "type": "earned", "points": 2200, "date": "2026-05-14", "description": "Flight DEL–BOM" },
+  { "id": "lt_003", "program_id": "loy_001", "type": "earned", "points": 1500, "date": "2026-05-20", "description": "Credit card spend bonus" },
+  { "id": "lt_004", "program_id": "loy_001", "type": "redeemed", "points": 2000, "date": "2026-05-25", "description": "Seat upgrade" },
+  { "id": "lt_005", "program_id": "loy_001", "type": "earned", "points": 19300, "date": "2026-04-10", "description": "Welcome bonus" },
+
+  { "id": "lt_006", "program_id": "loy_002", "type": "earned", "points": 4200, "date": "2026-05-05", "description": "Flight BOM–SIN" },
+  { "id": "lt_007", "program_id": "loy_002", "type": "earned", "points": 1800, "date": "2026-05-18", "description": "Partner airline credit" },
+  { "id": "lt_008", "program_id": "loy_002", "type": "expired", "points": 500, "date": "2026-05-01", "description": "Miles expired from 2024 activity" },
+  { "id": "lt_009", "program_id": "loy_002", "type": "earned", "points": 3200, "date": "2026-03-15", "description": "Flight DEL–DXB" },
+
+  { "id": "lt_010", "program_id": "loy_003", "type": "earned", "points": 12000, "date": "2026-05-08", "description": "5-night stay, Marriott Goa" },
+  { "id": "lt_011", "program_id": "loy_003", "type": "earned", "points": 8400, "date": "2026-04-22", "description": "3-night stay, Sheraton Delhi" },
+  { "id": "lt_012", "program_id": "loy_003", "type": "redeemed", "points": 15000, "date": "2026-05-28", "description": "Free night redemption, Mumbai" },
+  { "id": "lt_013", "program_id": "loy_003", "type": "earned", "points": 25000, "date": "2026-02-11", "description": "Amex transfer bonus" },
+  { "id": "lt_014", "program_id": "loy_003", "type": "adjusted", "points": 200, "date": "2026-04-25", "description": "Missing stay credit correction" },
+
+  { "id": "lt_015", "program_id": "loy_004", "type": "earned", "points": 6400, "date": "2026-05-12", "description": "4-night stay, Holiday Inn Bengaluru" },
+  { "id": "lt_016", "program_id": "loy_004", "type": "earned", "points": 9000, "date": "2026-04-02", "description": "Stay credit, InterContinental Chennai" },
+
+  { "id": "lt_017", "program_id": "loy_005", "type": "earned", "points": 18000, "date": "2026-05-01", "description": "May statement spend" },
+  { "id": "lt_018", "program_id": "loy_005", "type": "earned", "points": 15500, "date": "2026-04-01", "description": "April statement spend" },
+  { "id": "lt_019", "program_id": "loy_005", "type": "redeemed", "points": 10000, "date": "2026-05-15", "description": "Redeemed for Amazon voucher" },
+  { "id": "lt_020", "program_id": "loy_005", "type": "earned", "points": 18500, "date": "2026-03-01", "description": "March statement spend" }
+]

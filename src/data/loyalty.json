@@ -1,0 +1,54 @@
+[
+  {
+    "id": "loy_001",
+    "brand": "Vistara",
+    "program_name": "Club Vistara",
+    "points_name": "CV Points",
+    "category": "airline",
+    "member_id": "CV1234567",
+    "starting_balance": 0,
+    "tier": "Silver",
+    "expiry_date": "2027-03-31"
+  },
+  {
+    "id": "loy_002",
+    "brand": "Air India",
+    "program_name": "Flying Returns",
+    "points_name": "Miles",
+    "category": "airline",
+    "member_id": "FR9988776",
+    "starting_balance": 0,
+    "tier": "Base",
+    "expiry_date": "2026-12-31"
+  },
+  {
+    "id": "loy_003",
+    "brand": "Marriott",
+    "program_name": "Marriott Bonvoy",
+    "points_name": "Bonvoy Points",
+    "category": "hotel",
+    "member_id": "MB4455667",
+    "starting_balance": 5000,
+    "tier": "Gold Elite",
+    "expiry_date": "2027-06-30"
+  },
+  {
+    "id": "loy_004",
+    "brand": "IHG",
+    "program_name": "IHG One Rewards",
+    "points_name": "Points",
+    "category": "hotel",
+    "member_id": "IHG778899",
+    "starting_balance": 0,
+    "tier": "Club"
+  },
+  {
+    "id": "loy_005",
+    "brand": "HDFC Bank",
+    "program_name": "Infinia Rewards",
+    "points_name": "Reward Points",
+    "category": "other",
+    "starting_balance": 0,
+    "notes": "Redeem via SmartBuy for best value"
+  }
+]

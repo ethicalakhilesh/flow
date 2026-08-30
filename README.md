@@ -59,6 +59,17 @@ fall back to a generic icon *by category* (airline / hotel / other) rather
 than one single default, in `public/icons/loyalty/default-{airline,hotel,other}.svg`.
 Add a program's real logo by adding one line to `LOYALTY_ICON_MAP`.
 
+## Merchant icons
+
+Same pattern again, in `src/lib/merchantIcons.ts`, keyed on a transaction's
+`merchant` field. This one behaves slightly differently: an unmapped
+merchant returns `null` (not a generic fallback icon) so `MerchantIcon.tsx`
+falls back to the transaction's *category* icon instead — which is what
+every transaction already showed before this existed, so nothing changes
+visually until you actually map a merchant. Add one by dropping a file in
+`public/icons/merchants/` (or pasting a hosted URL) and adding a line to
+`MERCHANT_ICON_MAP`.
+
 ## Moving to Airtable (Phase 2)
 
 Everything reads through `src/lib/finance.ts`. To swap JSON for Airtable:

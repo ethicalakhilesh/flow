@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     type: body.type,
     amount: Number(body.amount),
     category_id: body.category_id,
+    merchant: body.merchant || undefined,
     date: body.date,
     note: body.note || undefined,
     created_at: new Date().toISOString(),

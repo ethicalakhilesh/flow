@@ -34,3 +34,17 @@ export interface Category {
 export interface AccountWithBalance extends Account {
   current_balance: number;
 }
+
+export type LoyaltyCategory = "airline" | "hotel" | "other";
+
+export interface LoyaltyProgram {
+  id: string;
+  name: string; // e.g. "United MileagePlus"
+  category: LoyaltyCategory;
+  member_id?: string;
+  points_balance: number;
+  points_unit: string; // "miles", "points", "nights", etc.
+  tier?: string; // e.g. "Gold", "Platinum"
+  expiry_date?: string; // ISO date - points or tier expiry, if applicable
+  notes?: string;
+}

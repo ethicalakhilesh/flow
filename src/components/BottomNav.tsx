@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ArrowLeftRight, Plus, Wallet } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Plus, Wallet, Award } from "lucide-react";
 
 const LEFT_ITEMS = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
 ];
 
-const RIGHT_ITEMS = [{ href: "/accounts", label: "Accounts", icon: Wallet }];
+const RIGHT_ITEMS = [
+  { href: "/accounts", label: "Accounts", icon: Wallet },
+  { href: "/memberships", label: "Memberships", icon: Award },
+];
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -18,7 +21,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur md:hidden">
-      <div className="relative mx-auto flex max-w-md items-center justify-between px-6 py-2">
+      <div className="relative mx-auto flex max-w-md items-center justify-between px-3 py-2">
         {LEFT_ITEMS.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}

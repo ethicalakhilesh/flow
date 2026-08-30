@@ -12,5 +12,6 @@
   { "id": "cat_business", "name": "Business", "type": "income", "icon": "store", "color": "#C7902F" },
   { "id": "cat_investment", "name": "Investment", "type": "income", "icon": "trending-up", "color": "#2E9E8F" },
   { "id": "cat_gift", "name": "Gift", "type": "income", "icon": "gift", "color": "#8B5FBF" },
-  { "id": "cat_other_inc", "name": "Other", "type": "income", "icon": "dots", "color": "#8A9694" }
+  { "id": "cat_other_inc", "name": "Other", "type": "income", "icon": "dots", "color": "#8A9694" },
+  { "id": "cat_transfer", "name": "Transfer", "type": "transfer", "icon": "repeat", "color": "#6B7876" }
 ]

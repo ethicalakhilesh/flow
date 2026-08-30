@@ -16,7 +16,7 @@ export interface Transaction {
   id: string;
   account_id: string;
   type: TransactionType;
-  amount: number; // always positive; sign is derived from `type`
+  amount: number; // always positive; sign is derived from `type` (and `transfer_direction` for transfers)
   category_id: string;
   merchant?: string; // structured merchant/payee name, used for icon lookup
   date: string; // ISO date, e.g. 2026-05-24
@@ -35,12 +35,28 @@ export interface Transaction {
     source_text?: string; // raw parsed statement line, once the PDF pipeline is wired in
   };
   edited?: boolean; // true once merchant/category has been manually corrected from raw_data
+
+  /**
+   * Transfers (credit card bill payments, ATM withdrawals, moving money
+   * between accounts) are stored as TWO linked transaction rows — one leg
+   * per account — rather than a single row, so each account's balance
+   * math stays a simple sum over its own rows. Both legs share a
+   * `transfer_id`; `transfer_direction` says which way money moved for
+   * *this* row's account ("out" = left this account, "in" = arrived).
+   * Only set when `type === "transfer"`.
+   */
+  transfer_id?: string;
+  transfer_direction?: "out" | "in";
+  /** The *other* account in the pair, for display ("Transfer to Cash"). */
+  linked_account_id?: string;
+  /** The other leg's transaction id, for linking to it from the detail page. */
+  linked_transaction_id?: string;
 }
 
 export interface Category {
   id: string;
   name: string;
-  type: "income" | "expense";
+  type: "income" | "expense" | "transfer";
   icon: string; // key used to look up an icon component
   color: string; // hex, used for charts
 }

@@ -28,9 +28,12 @@ export function getCategoryById(id: string): Category | undefined {
 
 /**
  * Derived balance for a single account:
- *   current_balance = initial_balance + income - expense
- * Transfers are treated as balance-neutral at the account level for now
- * (a fuller model would move value between two accounts).
+ *   current_balance = initial_balance + income - expense ± transfers
+ *
+ * Transfers are stored as two linked rows (see Transaction.transfer_id in
+ * types.ts) — this account's own row says which direction money moved for
+ * *this* account via `transfer_direction`, so a credit card bill payment
+ * correctly debits the bank account and credits the card in the same pass.
  */
 export function accountBalance(account: Account, transactions: Transaction[]): number {
   const delta = transactions
@@ -38,6 +41,9 @@ export function accountBalance(account: Account, transactions: Transaction[]): n
     .reduce((sum, t) => {
       if (t.type === "income") return sum + t.amount;
       if (t.type === "expense") return sum - t.amount;
+      if (t.type === "transfer") {
+        return t.transfer_direction === "in" ? sum + t.amount : sum - t.amount;
+      }
       return sum;
     }, 0);
   return account.initial_balance + delta;

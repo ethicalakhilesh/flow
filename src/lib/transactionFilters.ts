@@ -1,7 +1,7 @@
 import type { Account, AccountType, Category, Transaction } from "@/lib/types";
 
 export type SourceFilter = "all" | "bank" | "credit_card";
-export type TypeFilter = "all" | "credit" | "debit";
+export type TypeFilter = "all" | "credit" | "debit" | "transfer";
 export type DateMode = "none" | "specific" | "around" | "range";
 export type AmountMode = "none" | "exact" | "range";
 
@@ -51,6 +51,7 @@ export function eligibleAccountsForSource(accounts: Account[], source: SourceFil
 
 function matchesType(t: Transaction, type: TypeFilter): boolean {
   if (type === "all") return true;
+  if (type === "transfer") return t.type === "transfer";
   return type === "credit" ? t.type === "income" : t.type === "expense";
 }
 

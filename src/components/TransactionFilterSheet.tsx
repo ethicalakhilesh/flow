@@ -132,6 +132,7 @@ export default function TransactionFilterSheet({
                 { label: "All", value: "all" },
                 { label: "Credit", value: "credit" },
                 { label: "Debit", value: "debit" },
+                { label: "Transfer", value: "transfer" },
               ]}
             />
           </Section>

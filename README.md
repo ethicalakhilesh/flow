@@ -59,6 +59,34 @@ fall back to a generic icon *by category* (airline / hotel / other) rather
 than one single default, in `public/icons/loyalty/default-{airline,hotel,other}.svg`.
 Add a program's real logo by adding one line to `LOYALTY_ICON_MAP`.
 
+## Linked transfers (credit card payments, ATM withdrawals, etc.)
+
+Transfers are stored as **two linked rows**, not one — see `transfer_id`,
+`transfer_direction`, `linked_account_id`, and `linked_transaction_id` on
+`Transaction` in `src/lib/types.ts`. Paying off a credit card from your bank
+account creates one row on the bank account (`transfer_direction: "out"`)
+and one on the card (`"in"`), sharing a `transfer_id`. This keeps
+`accountBalance()` a plain sum over each account's own rows — no special
+"find the other half" logic needed for balance math — and correctly stops
+credit card bill payments from double-counting as spending (the spend was
+already counted when the card was originally charged; the bill payment is
+just moving money, not a new expense).
+
+**Creating one**: the Add Transaction page has a third "Transfer" option
+alongside Expense/Income — pick a From and To account, no category needed.
+`POST /api/transactions` detects `type: "transfer"` in the request and
+writes both rows atomically.
+
+**Viewing one**: the transaction detail page shows which account it's
+linked to and links straight to the other leg. `TransactionRow` labels
+these as "Transfer to/from {account}" instead of a merchant name.
+
+Both `summarizePeriod()` and `categoryBreakdown()` in `finance.ts` only
+ever look at `type === "income" | "expense"`, so transfers are
+automatically excluded from Income/Expenses/Remaining and the spending
+donut — as they should be, since moving your own money around isn't income
+or spending.
+
 ## Merchant icons
 
 Same pattern again, in `src/lib/merchantIcons.ts`, keyed on a transaction's

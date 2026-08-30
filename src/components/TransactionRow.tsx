@@ -1,11 +1,19 @@
 import Link from "next/link";
 import type { Transaction } from "@/lib/types";
-import { formatCurrency, formatShortDate, getCategoryById } from "@/lib/finance";
+import { formatCurrency, formatShortDate, getCategoryById, getAccounts } from "@/lib/finance";
 import MerchantIcon from "./MerchantIcon";
 
 export default function TransactionRow({ transaction }: { transaction: Transaction }) {
   const category = getCategoryById(transaction.category_id);
   const isIncome = transaction.type === "income";
+  const isTransfer = transaction.type === "transfer";
+
+  let subtitle = `${category?.name} · ${formatShortDate(transaction.date)}`;
+  if (isTransfer && transaction.linked_account_id) {
+    const linkedAccount = getAccounts().find((a) => a.id === transaction.linked_account_id);
+    const arrow = transaction.transfer_direction === "out" ? "to" : "from";
+    subtitle = `Transfer ${arrow} ${linkedAccount?.name ?? "linked account"} · ${formatShortDate(transaction.date)}`;
+  }
 
   return (
     <Link
@@ -17,16 +25,14 @@ export default function TransactionRow({ transaction }: { transaction: Transacti
         <div className="truncate text-sm font-medium text-ink">
           {transaction.merchant || transaction.note || category?.name || "Transaction"}
         </div>
-        <div className="text-xs text-muted">
-          {category?.name} · {formatShortDate(transaction.date)}
-        </div>
+        <div className="truncate text-xs text-muted">{subtitle}</div>
       </div>
       <div
         className={`shrink-0 text-sm font-semibold ${
-          isIncome ? "text-income" : "text-ink"
+          isTransfer ? "text-ink" : isIncome ? "text-income" : "text-ink"
         }`}
       >
-        {isIncome ? "+" : "−"}
+        {isTransfer ? (transaction.transfer_direction === "in" ? "+" : "−") : isIncome ? "+" : "−"}
         {formatCurrency(transaction.amount)}
       </div>
     </Link>

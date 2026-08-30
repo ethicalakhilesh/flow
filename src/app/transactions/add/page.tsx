@@ -17,12 +17,15 @@ export default function AddTransactionPage() {
   const [amount, setAmount] = useState("0");
   const [categoryId, setCategoryId] = useState("");
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
+  const [fromAccountId, setFromAccountId] = useState(accounts[0]?.id ?? "");
+  const [toAccountId, setToAccountId] = useState(accounts[1]?.id ?? accounts[0]?.id ?? "");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState("");
   const [merchant, setMerchant] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isTransfer = type === "transfer";
   const relevantCategories = categories.filter((c) => c.type === (type === "income" ? "income" : "expense"));
 
   function pressKey(key: string) {
@@ -45,34 +48,57 @@ export default function AddTransactionPage() {
       setError("Enter an amount greater than 0.");
       return;
     }
-    if (!categoryId) {
-      setError("Select a category.");
-      return;
-    }
-    if (!accountId) {
-      setError("Select an account.");
-      return;
+
+    if (isTransfer) {
+      if (!fromAccountId || !toAccountId) {
+        setError("Select both a From and To account.");
+        return;
+      }
+      if (fromAccountId === toAccountId) {
+        setError("From and To accounts must be different.");
+        return;
+      }
+    } else {
+      if (!categoryId) {
+        setError("Select a category.");
+        return;
+      }
+      if (!accountId) {
+        setError("Select an account.");
+        return;
+      }
     }
 
     setSaving(true);
     try {
+      const body = isTransfer
+        ? {
+            type: "transfer",
+            from_account_id: fromAccountId,
+            to_account_id: toAccountId,
+            amount: numericAmount,
+            date,
+            note,
+          }
+        : {
+            account_id: accountId,
+            type,
+            amount: numericAmount,
+            category_id: categoryId,
+            date,
+            note,
+            merchant: merchant || undefined,
+          };
+
       const res = await fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          account_id: accountId,
-          type,
-          amount: numericAmount,
-          category_id: categoryId,
-          date,
-          note,
-          merchant: merchant || undefined,
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Failed to save transaction");
       router.push("/transactions");
       router.refresh();
-    } catch (err) {
+    } catch {
       setError("Something went wrong saving this transaction. Please try again.");
     } finally {
       setSaving(false);
@@ -87,7 +113,7 @@ export default function AddTransactionPage() {
       <h1 className="mb-4 font-display text-2xl font-bold text-ink">Add Transaction</h1>
 
       {/* Type toggle */}
-      <div className="mb-5 grid grid-cols-2 gap-2 rounded-full bg-canvas p-1">
+      <div className="mb-5 grid grid-cols-3 gap-2 rounded-full bg-canvas p-1">
         <button
           onClick={() => {
             setType("expense");
@@ -110,6 +136,14 @@ export default function AddTransactionPage() {
         >
           Income
         </button>
+        <button
+          onClick={() => setType("transfer")}
+          className={`rounded-full py-2 text-sm font-semibold transition-colors ${
+            type === "transfer" ? "bg-ink text-white" : "text-muted"
+          }`}
+        >
+          Transfer
+        </button>
       </div>
 
       {/* Amount display */}
@@ -120,40 +154,78 @@ export default function AddTransactionPage() {
 
       {/* Detail rows */}
       <div className="mb-5 divide-y divide-border rounded-xl2 border border-border bg-surface shadow-card">
-        <label className="flex items-center justify-between gap-3 px-4 py-3">
-          <span className="text-sm text-muted">Category</span>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink focus:outline-none"
-          >
-            <option value="" disabled>
-              Select category
-            </option>
-            {relevantCategories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <ChevronRight size={16} className="shrink-0 text-muted" />
-        </label>
+        {isTransfer ? (
+          <>
+            <label className="flex items-center justify-between gap-3 px-4 py-3">
+              <span className="text-sm text-muted">From Account</span>
+              <select
+                value={fromAccountId}
+                onChange={(e) => setFromAccountId(e.target.value)}
+                className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink focus:outline-none"
+              >
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronRight size={16} className="shrink-0 text-muted" />
+            </label>
 
-        <label className="flex items-center justify-between gap-3 px-4 py-3">
-          <span className="text-sm text-muted">Account</span>
-          <select
-            value={accountId}
-            onChange={(e) => setAccountId(e.target.value)}
-            className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink focus:outline-none"
-          >
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-          <ChevronRight size={16} className="shrink-0 text-muted" />
-        </label>
+            <label className="flex items-center justify-between gap-3 px-4 py-3">
+              <span className="text-sm text-muted">To Account</span>
+              <select
+                value={toAccountId}
+                onChange={(e) => setToAccountId(e.target.value)}
+                className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink focus:outline-none"
+              >
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronRight size={16} className="shrink-0 text-muted" />
+            </label>
+          </>
+        ) : (
+          <>
+            <label className="flex items-center justify-between gap-3 px-4 py-3">
+              <span className="text-sm text-muted">Category</span>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink focus:outline-none"
+              >
+                <option value="" disabled>
+                  Select category
+                </option>
+                {relevantCategories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronRight size={16} className="shrink-0 text-muted" />
+            </label>
+
+            <label className="flex items-center justify-between gap-3 px-4 py-3">
+              <span className="text-sm text-muted">Account</span>
+              <select
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+                className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink focus:outline-none"
+              >
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronRight size={16} className="shrink-0 text-muted" />
+            </label>
+          </>
+        )}
 
         <label className="flex items-center justify-between gap-3 px-4 py-3">
           <span className="text-sm text-muted">Date</span>
@@ -165,16 +237,18 @@ export default function AddTransactionPage() {
           />
         </label>
 
-        <label className="flex items-center justify-between gap-3 px-4 py-3">
-          <span className="text-sm text-muted">Merchant</span>
-          <input
-            type="text"
-            value={merchant}
-            onChange={(e) => setMerchant(e.target.value)}
-            placeholder="e.g. Starbucks (optional)"
-            className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink placeholder:text-muted placeholder:font-normal focus:outline-none"
-          />
-        </label>
+        {!isTransfer && (
+          <label className="flex items-center justify-between gap-3 px-4 py-3">
+            <span className="text-sm text-muted">Merchant</span>
+            <input
+              type="text"
+              value={merchant}
+              onChange={(e) => setMerchant(e.target.value)}
+              placeholder="e.g. Starbucks (optional)"
+              className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink placeholder:text-muted placeholder:font-normal focus:outline-none"
+            />
+          </label>
+        )}
 
         <label className="flex items-center justify-between gap-3 px-4 py-3">
           <span className="text-sm text-muted">Note</span>
@@ -182,7 +256,7 @@ export default function AddTransactionPage() {
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Add a note (optional)"
+            placeholder={isTransfer ? "e.g. ATM withdrawal (optional)" : "Add a note (optional)"}
             className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink placeholder:text-muted placeholder:font-normal focus:outline-none"
           />
         </label>
@@ -208,12 +282,17 @@ export default function AddTransactionPage() {
         disabled={saving}
         className="w-full rounded-xl2 bg-brand py-3.5 text-sm font-semibold text-white shadow-card disabled:opacity-60"
       >
-        {saving ? "Saving..." : "Save Transaction"}
+        {saving ? "Saving..." : isTransfer ? "Save Transfer" : "Save Transaction"}
       </button>
 
-      {selectedCategory && selectedAccount && (
+      {!isTransfer && selectedCategory && selectedAccount && (
         <p className="mt-3 text-center text-xs text-muted">
           {selectedCategory.name} · {selectedAccount.name}
+        </p>
+      )}
+      {isTransfer && fromAccountId && toAccountId && fromAccountId !== toAccountId && (
+        <p className="mt-3 text-center text-xs text-muted">
+          {accounts.find((a) => a.id === fromAccountId)?.name} → {accounts.find((a) => a.id === toAccountId)?.name}
         </p>
       )}
     </div>

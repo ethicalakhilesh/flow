@@ -27,6 +27,8 @@ export default function TransactionDetailPage({ params }: { params: { id: string
 
   const relevantCategories = categories.filter((c) => c.type === transaction.type);
   const isIncome = transaction.type === "income";
+  const isTransfer = transaction.type === "transfer";
+  const linkedAccount = accounts.find((a) => a.id === transaction.linked_account_id);
 
   const dateLabel = new Date(transaction.date).toLocaleDateString("en-IN", {
     weekday: "short",
@@ -84,8 +86,8 @@ export default function TransactionDetailPage({ params }: { params: { id: string
           </h1>
           <p className="text-sm text-muted">{category?.name}</p>
         </div>
-        <div className={`shrink-0 text-lg font-bold ${isIncome ? "text-income" : "text-ink"}`}>
-          {isIncome ? "+" : "−"}
+        <div className={`shrink-0 text-lg font-bold ${isTransfer ? "text-ink" : isIncome ? "text-income" : "text-ink"}`}>
+          {isTransfer ? (transaction.transfer_direction === "in" ? "+" : "−") : isIncome ? "+" : "−"}
           {formatCurrency(transaction.amount)}
         </div>
       </div>
@@ -95,11 +97,28 @@ export default function TransactionDetailPage({ params }: { params: { id: string
         <DetailRow label="Transaction ID" value={transaction.id} mono />
         <DetailRow label="Date" value={dateLabel} />
         <DetailRow label="Time" value={timeLabel} />
-        <DetailRow label="Type" value={isIncome ? "Credit" : "Debit"} />
+        <DetailRow label="Type" value={isTransfer ? "Transfer" : isIncome ? "Credit" : "Debit"} />
         <DetailRow
           label="Source"
           value={account ? `${account.name}${account.institution && account.institution !== account.name ? ` · ${account.institution}` : ""}` : "—"}
         />
+        {isTransfer && linkedAccount && (
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <span className="text-sm text-muted">
+              {transaction.transfer_direction === "out" ? "Transferred To" : "Transferred From"}
+            </span>
+            {transaction.linked_transaction_id ? (
+              <Link
+                href={`/transactions/${transaction.linked_transaction_id}`}
+                className="text-sm font-medium text-brand"
+              >
+                {linkedAccount.name} →
+              </Link>
+            ) : (
+              <span className="text-sm font-medium text-ink">{linkedAccount.name}</span>
+            )}
+          </div>
+        )}
         {transaction.note && <DetailRow label="Note" value={transaction.note} />}
       </div>
 

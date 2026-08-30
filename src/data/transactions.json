@@ -410,16 +410,80 @@
   {
     "id": "txn_026",
     "account_id": "acc_hdfc",
-    "type": "expense",
+    "type": "transfer",
     "amount": 12000,
-    "category_id": "cat_bills",
+    "category_id": "cat_transfer",
     "date": "2026-06-05",
     "note": "Credit card bill payment",
     "created_at": "2026-06-05T09:00:00.000Z",
+    "transfer_id": "tr_001",
+    "transfer_direction": "out",
+    "linked_account_id": "acc_credit_card",
+    "linked_transaction_id": "txn_027",
     "raw_data": {
       "merchant": null,
-      "category_id": "cat_bills",
+      "category_id": "cat_transfer",
       "note": "Credit card bill payment"
+    },
+    "edited": false
+  },
+  {
+    "id": "txn_027",
+    "account_id": "acc_credit_card",
+    "type": "transfer",
+    "amount": 12000,
+    "category_id": "cat_transfer",
+    "date": "2026-06-05",
+    "note": "Credit card bill payment",
+    "created_at": "2026-06-05T09:00:00.000Z",
+    "transfer_id": "tr_001",
+    "transfer_direction": "in",
+    "linked_account_id": "acc_hdfc",
+    "linked_transaction_id": "txn_026",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_transfer",
+      "note": "Credit card bill payment"
+    },
+    "edited": false
+  },
+  {
+    "id": "txn_028",
+    "account_id": "acc_hdfc",
+    "type": "transfer",
+    "amount": 5000,
+    "category_id": "cat_transfer",
+    "date": "2026-05-27",
+    "note": "ATM withdrawal",
+    "created_at": "2026-05-27T18:20:00.000Z",
+    "transfer_id": "tr_002",
+    "transfer_direction": "out",
+    "linked_account_id": "acc_cash",
+    "linked_transaction_id": "txn_029",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_transfer",
+      "note": "ATM withdrawal"
+    },
+    "edited": false
+  },
+  {
+    "id": "txn_029",
+    "account_id": "acc_cash",
+    "type": "transfer",
+    "amount": 5000,
+    "category_id": "cat_transfer",
+    "date": "2026-05-27",
+    "note": "ATM withdrawal",
+    "created_at": "2026-05-27T18:20:00.000Z",
+    "transfer_id": "tr_002",
+    "transfer_direction": "in",
+    "linked_account_id": "acc_hdfc",
+    "linked_transaction_id": "txn_028",
+    "raw_data": {
+      "merchant": null,
+      "category_id": "cat_transfer",
+      "note": "ATM withdrawal"
     },
     "edited": false
   }

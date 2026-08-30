@@ -70,6 +70,27 @@ visually until you actually map a merchant. Add one by dropping a file in
 `public/icons/merchants/` (or pasting a hosted URL) and adding a line to
 `MERCHANT_ICON_MAP`.
 
+## Transaction filters
+
+`src/lib/transactionFilters.ts` holds the filtering logic (pure functions,
+no UI), `TransactionFilterSheet.tsx` is the bottom-sheet UI. Filters are
+live — no separate "Apply" step, results update as you toggle:
+
+- **Type** — All / Credit (income) / Debit (expense)
+- **Source** — All / Bank Account / Credit Card. "Bank Account" covers
+  `bank`, `savings`, `cash`, and `wallet` account types; "Credit Card"
+  covers `credit_card` — see `SOURCE_ACCOUNT_TYPES` if you want to
+  reclassify any of these.
+- **Account** — multi-select, scoped to whatever Source allows. Selecting
+  a Source resets the account selection back to "all" for that source.
+- **Date** — Any / on a specific date / within ± N days of a date / a date
+  range.
+- **Amount** — Any / an exact amount / a min–max range.
+- **Category** — multi-select, but the option list itself is filtered:
+  `getAvailableCategories()` only offers categories that still have at
+  least one matching transaction under the *other* active filters, so you
+  can never pick a category that would return zero results.
+
 ## Moving to Airtable (Phase 2)
 
 Everything reads through `src/lib/finance.ts`. To swap JSON for Airtable:

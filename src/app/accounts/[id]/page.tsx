@@ -5,12 +5,10 @@ import {
   getAccountsWithBalances,
   getTransactions,
   getCreditCardUsage,
-  maskAccountNumber,
   nextOccurrenceOfDay,
   formatCurrency,
 } from "@/lib/finance";
-import { getBankIconUrl, DEFAULT_BANK_ICON } from "@/lib/bankIcons";
-import BrandLogo from "@/components/BrandLogo";
+import AccountFaceCard from "@/components/AccountFaceCard";
 import TransactionRow from "@/components/TransactionRow";
 
 // Always render on demand for any id - never statically prerendered.
@@ -30,7 +28,6 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
   if (!account) notFound();
 
   const isCreditCard = account.type === "credit_card";
-  const iconUrl = getBankIconUrl(account.institution ?? account.name);
 
   const allTransactions = getTransactions();
   const accountTransactions = allTransactions.filter((t) => t.account_id === account.id);
@@ -59,27 +56,11 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
         Accounts
       </Link>
 
-      {/* Hero card */}
-      <div className="mb-4 overflow-hidden rounded-xl2 bg-brand p-5 text-white shadow-card">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="rounded-[22%] bg-white/15 p-1">
-            <BrandLogo src={iconUrl} fallbackSrc={DEFAULT_BANK_ICON} size={40} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-base font-semibold">{account.name}</div>
-            <div className="truncate text-xs text-white/75">
-              {account.account_subtype ?? TYPE_LABEL[account.type]}
-              {account.last_four && <> · {maskAccountNumber(account.last_four)}</>}
-            </div>
-          </div>
-        </div>
-        <div className="text-2xl font-bold">
-          {formatCurrency(isCreditCard ? usage!.outstanding : account.current_balance)}
-        </div>
-        <div className="text-xs text-white/75">
-          {isCreditCard ? "Outstanding Balance" : "Available Balance"}
-        </div>
-      </div>
+      {/* Account / card face */}
+      <AccountFaceCard
+        account={account}
+        displayBalance={isCreditCard ? usage!.outstanding : undefined}
+      />
 
       {/* Credit card usage */}
       {isCreditCard && usage && account.credit_limit !== undefined && (

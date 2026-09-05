@@ -12,7 +12,8 @@
     "is_primary": true,
     "ifsc_code": "HDFC0001234",
     "account_holder": "Arjun Mehta",
-    "opened_date": "2023-03-12"
+    "opened_date": "2023-03-12",
+    "card_color": "#003B7A"
   },
   {
     "id": "acc_icici",
@@ -26,7 +27,8 @@
     "last_four": "7104",
     "ifsc_code": "ICIC0005678",
     "account_holder": "Arjun Mehta",
-    "opened_date": "2022-08-01"
+    "opened_date": "2022-08-01",
+    "card_color": "#B02A30"
   },
   {
     "id": "acc_cash",
@@ -35,7 +37,8 @@
     "initial_balance": 5000,
     "currency": "INR",
     "status": "active",
-    "account_subtype": "Cash on Hand"
+    "account_subtype": "Cash on Hand",
+    "card_color": "#4B5563"
   },
   {
     "id": "acc_credit_card",
@@ -51,6 +54,7 @@
     "credit_limit": 150000,
     "statement_day": 25,
     "due_day": 15,
-    "payment_reminder": true
+    "payment_reminder": true,
+    "card_color": "#111827"
   }
 ]

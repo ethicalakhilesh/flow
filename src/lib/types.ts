@@ -16,6 +16,12 @@ export interface Account {
   ifsc_code?: string;
   account_holder?: string;
   opened_date?: string; // ISO date
+  /**
+   * Base hex color for this account's card face (e.g. "#003B7A"). Set per
+   * account in the data, not editable anywhere in the UI — same pattern as
+   * LoyaltyProgram.card_color. Falls back to the brand teal if unset.
+   */
+  card_color?: string;
 
   // Credit-card-specific fields (undefined for non-card accounts)
   credit_limit?: number;

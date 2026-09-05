@@ -3,6 +3,7 @@ import transactionsData from "@/data/transactions.json";
 import categoriesData from "@/data/categories.json";
 import type {
   Account,
+  AccountType,
   AccountWithBalance,
   Category,
   Transaction,
@@ -125,6 +126,12 @@ export function getCreditCardUsage(account: AccountWithBalance): CreditCardUsage
 /** "•••• 4821", or "" if there's nothing to mask. */
 export function maskAccountNumber(lastFour?: string): string {
   return lastFour ? `•••• ${lastFour}` : "";
+}
+
+/** "•••• •••• •••• 4821" for credit cards (reads like a physical card), "•••• 4821" for everything else. */
+export function formatCardNumber(lastFour?: string, accountType?: AccountType): string {
+  if (!lastFour) return "";
+  return accountType === "credit_card" ? `•••• •••• •••• ${lastFour}` : `•••• ${lastFour}`;
 }
 
 /**

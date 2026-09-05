@@ -486,5 +486,39 @@
       "note": "ATM withdrawal"
     },
     "edited": false
+  },
+  {
+    "id": "txn_030",
+    "account_id": "acc_credit_card_addon",
+    "type": "expense",
+    "amount": 3200,
+    "category_id": "cat_shopping",
+    "merchant": "Myntra",
+    "date": "2026-05-19",
+    "note": "Myntra order",
+    "created_at": "2026-05-19T15:00:00.000Z",
+    "raw_data": {
+      "merchant": "Myntra",
+      "category_id": "cat_shopping",
+      "note": "Myntra order"
+    },
+    "edited": false
+  },
+  {
+    "id": "txn_031",
+    "account_id": "acc_credit_card_addon",
+    "type": "expense",
+    "amount": 1500,
+    "category_id": "cat_food",
+    "merchant": "Domino's",
+    "date": "2026-05-21",
+    "note": "Domino's order",
+    "created_at": "2026-05-21T19:30:00.000Z",
+    "raw_data": {
+      "merchant": "Domino's",
+      "category_id": "cat_food",
+      "note": "Domino's order"
+    },
+    "edited": false
   }
 ]

@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
     statement_day: body.statement_day !== undefined ? Number(body.statement_day) : undefined,
     due_day: body.due_day !== undefined ? Number(body.due_day) : undefined,
     payment_reminder: body.payment_reminder !== undefined ? Boolean(body.payment_reminder) : undefined,
+    parent_account_id: body.parent_account_id || undefined,
+    shares_credit_limit: body.shares_credit_limit !== undefined ? Boolean(body.shares_credit_limit) : undefined,
   };
 
   // If this account is marked primary, un-mark any other account of the same

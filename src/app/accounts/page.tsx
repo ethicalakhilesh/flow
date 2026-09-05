@@ -64,7 +64,7 @@ export default function AccountsPage() {
           </div>
           <div className="space-y-2">
             {creditCards.map((a) => (
-              <CreditCardRow key={a.id} account={a} />
+              <CreditCardRow key={a.id} account={a} allAccounts={accounts} />
             ))}
           </div>
         </div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Link2 } from "lucide-react";
 import {
   getAccountsWithBalances,
   getTransactions,
@@ -28,12 +28,21 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
   if (!account) notFound();
 
   const isCreditCard = account.type === "credit_card";
+  const isAddon = !!account.parent_account_id;
+  const primary = isAddon ? accounts.find((a) => a.id === account.parent_account_id) : undefined;
+  const linkedAddons = accounts.filter(
+    (a) => a.parent_account_id === account.id
+  );
 
   const allTransactions = getTransactions();
   const accountTransactions = allTransactions.filter((t) => t.account_id === account.id);
   const recent = accountTransactions.slice(0, 5);
 
-  const usage = isCreditCard ? getCreditCardUsage(account) : null;
+  const usage = isCreditCard ? getCreditCardUsage(account, accounts) : null;
+  // The limit that actually applies to this card — the primary's, if this
+  // card pools its limit rather than having its own.
+  const effectiveLimit = isAddon && account.shares_credit_limit ? primary?.credit_limit : account.credit_limit;
+
   const dueLabel =
     isCreditCard && account.due_day !== undefined
       ? nextOccurrenceOfDay(account.due_day).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
@@ -63,7 +72,7 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
       />
 
       {/* Credit card usage */}
-      {isCreditCard && usage && account.credit_limit !== undefined && (
+      {isCreditCard && usage && effectiveLimit !== undefined && (
         <div className="mb-4 rounded-xl2 border border-border bg-surface p-4 shadow-card">
           <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-canvas">
             <div
@@ -72,9 +81,37 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
             />
           </div>
           <div className="flex items-center justify-between text-xs text-muted">
-            <span>{usage.percentUsed}% used</span>
+            <span>{usage.percentUsed}% used{isAddon && account.shares_credit_limit ? " (shared limit)" : ""}</span>
             <span>Available: {formatCurrency(usage.available)}</span>
           </div>
+        </div>
+      )}
+
+      {/* Add-on / primary card linkage */}
+      {isCreditCard && (isAddon || linkedAddons.length > 0) && (
+        <div className="mb-4 divide-y divide-border rounded-xl2 border border-border bg-surface shadow-card">
+          {isAddon && primary && (
+            <Link href={`/accounts/${primary.id}`} className="flex items-center gap-3 px-4 py-3">
+              <Link2 size={16} className="shrink-0 text-brand" />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium text-ink">Add-on of {primary.name}</div>
+                <div className="text-xs text-muted">
+                  {account.shares_credit_limit ? "Shares this card's credit limit" : "Has its own separate credit limit"}
+                </div>
+              </div>
+            </Link>
+          )}
+          {linkedAddons.map((addon) => (
+            <Link key={addon.id} href={`/accounts/${addon.id}`} className="flex items-center gap-3 px-4 py-3">
+              <Link2 size={16} className="shrink-0 text-muted" />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium text-ink">{addon.name}</div>
+                <div className="text-xs text-muted">
+                  {addon.shares_credit_limit ? "Add-on card · shares this limit" : "Add-on card · separate limit"}
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
 
@@ -93,8 +130,11 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
           dot={account.status === "active" ? "#0E7C6B" : "#8A9694"}
         />
 
-        {isCreditCard && account.credit_limit !== undefined && (
-          <DetailField label="Credit Limit" value={formatCurrency(account.credit_limit)} />
+        {isCreditCard && effectiveLimit !== undefined && (
+          <DetailField
+            label="Credit Limit"
+            value={`${formatCurrency(effectiveLimit)}${isAddon && account.shares_credit_limit ? " (shared)" : ""}`}
+          />
         )}
         {isCreditCard && statementLabel && <DetailField label="Statement Date" value={statementLabel} />}
         {isCreditCard && dueLabel && <DetailField label="Payment Due" value={dueLabel} />}

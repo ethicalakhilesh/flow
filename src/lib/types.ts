@@ -28,6 +28,19 @@ export interface Account {
   statement_day?: number; // day of month, 1-31
   due_day?: number; // day of month, 1-31
   payment_reminder?: boolean;
+
+  /**
+   * Add-on/supplementary card support. An add-on card points back at its
+   * primary card via parent_account_id. If shares_credit_limit is true,
+   * the add-on draws from the PRIMARY's credit_limit as a shared pool
+   * instead of having its own — see getCardGroup()/getCreditCardUsage()
+   * in finance.ts, which compute combined outstanding/available across
+   * every account in the same limit-sharing group. An add-on can instead
+   * have its own separate credit_limit by leaving shares_credit_limit
+   * false/unset.
+   */
+  parent_account_id?: string;
+  shares_credit_limit?: boolean;
 }
 
 export type TransactionType = "income" | "expense" | "transfer";

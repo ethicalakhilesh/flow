@@ -115,9 +115,53 @@ export interface CreditCardUsage {
   percentUsed: number;
 }
 
-export function getCreditCardUsage(account: AccountWithBalance): CreditCardUsage {
-  const limit = account.credit_limit ?? 0;
-  const outstanding = Math.max(0, -account.current_balance);
+/** True if this account is an add-on card linked to a primary card. */
+export function isAddonCard(account: Account): boolean {
+  return !!account.parent_account_id;
+}
+
+/**
+ * Every account that pools a single credit limit with `account` — the
+ * primary card plus any add-on cards that have shares_credit_limit set.
+ * Works whether you pass the primary itself or one of its add-ons.
+ * Returns just [account] if it isn't part of a limit-sharing group.
+ */
+export function getCardGroup(
+  account: AccountWithBalance,
+  allAccounts: AccountWithBalance[]
+): AccountWithBalance[] {
+  const primaryId = account.parent_account_id ?? account.id;
+  const primary = allAccounts.find((a) => a.id === primaryId);
+  if (!primary) return [account];
+
+  const sharedAddons = allAccounts.filter(
+    (a) => a.parent_account_id === primaryId && a.shares_credit_limit
+  );
+
+  const accountIsInSharedGroup = account.id === primaryId || account.shares_credit_limit;
+  if (sharedAddons.length === 0 || !accountIsInSharedGroup) return [account];
+
+  return [primary, ...sharedAddons];
+}
+
+/**
+ * Credit limit and outstanding balance for a card. Pass `allAccounts` to
+ * correctly pool add-on cards that share a limit with their primary — the
+ * limit comes from the primary card, and outstanding is summed across
+ * every card in the group, so a primary and its add-ons always show the
+ * same combined utilization. Without `allAccounts`, treats the account
+ * standalone (its own credit_limit, its own balance only).
+ */
+export function getCreditCardUsage(
+  account: AccountWithBalance,
+  allAccounts?: AccountWithBalance[]
+): CreditCardUsage {
+  const primaryId = account.parent_account_id ?? account.id;
+  const primary = allAccounts?.find((a) => a.id === primaryId) ?? account;
+  const group = allAccounts ? getCardGroup(account, allAccounts) : [account];
+
+  const limit = primary.credit_limit ?? account.credit_limit ?? 0;
+  const outstanding = group.reduce((sum, a) => sum + Math.max(0, -a.current_balance), 0);
   const available = Math.max(0, limit - outstanding);
   const percentUsed = limit > 0 ? Math.round((outstanding / limit) * 100) : 0;
   return { outstanding, available, percentUsed };

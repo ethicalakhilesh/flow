@@ -56,5 +56,19 @@
     "due_day": 15,
     "payment_reminder": true,
     "card_color": "#111827"
+  },
+  {
+    "id": "acc_credit_card_addon",
+    "name": "HDFC Regalia - Add-on",
+    "type": "credit_card",
+    "institution": "HDFC Bank",
+    "initial_balance": 0,
+    "currency": "INR",
+    "status": "active",
+    "account_subtype": "Credit Card",
+    "last_four": "1123",
+    "card_color": "#1F2937",
+    "parent_account_id": "acc_credit_card",
+    "shares_credit_limit": true
   }
 ]

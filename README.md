@@ -31,6 +31,30 @@ Balances are never stored — they're computed on read in `src/lib/finance.ts`
 (`accountBalance()`), so editing or deleting a transaction automatically
 corrects every downstream number.
 
+## Add-on cards & shared credit limits
+
+An add-on/supplementary card links to its primary via `parent_account_id`
+on `Account`. If `shares_credit_limit` is also true, the add-on pools the
+*primary's* `credit_limit` instead of having its own — `getCardGroup()` and
+`getCreditCardUsage()` in `finance.ts` compute combined outstanding/available
+across every card in the group, so the primary and every linked add-on
+always show the same utilization numbers, even though each card still
+tracks its own transactions and its own individual balance separately.
+
+An add-on can instead have its own **separate** limit by leaving
+`shares_credit_limit` false — it's still linked to the primary for display
+purposes (shows up under it, links back to it), it just doesn't pool.
+
+**Creating one**: the Add Credit Card form has a "Link as an add-on card"
+toggle — pick the primary from existing (non-add-on) credit cards, then
+choose whether to share its limit. When sharing, the card's own Credit
+Limit / Statement Date / Due Date inputs are hidden since those are
+inherited from the primary.
+
+**Where it shows up**: `CreditCardRow` (Accounts list) shows "Add-on of
+{primary}" / "{N} add-on cards sharing this limit" as appropriate, and the
+account detail page has a dedicated linkage section linking each direction.
+
 ## Accounts screen
 
 - **Net position**: `getNetPosition()` splits assets (everything except

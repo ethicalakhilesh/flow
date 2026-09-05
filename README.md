@@ -17,7 +17,7 @@ Open http://localhost:3000 — it redirects to `/dashboard`.
 - **Dashboard**: total balance, income, expenses, remaining, spending trend, category breakdown, recent transactions, accounts summary
 - **Add Transaction**: expense/income toggle, numeric keypad, category, account, date, note
 - **Transactions**: searchable, filterable list (all / income / expense)
-- **Accounts**: balances derived automatically as `initial_balance + income − expenses`
+- **Accounts**: total net position (assets vs. liabilities, hide/show toggle), grouped Bank Accounts / Credit Cards lists with real bank icons and masked numbers, per-account detail pages with a transaction history, and a full Add Account flow (Bank/Credit Card/Cash/Wallet)
 - **Memberships**: airline miles, hotel points, and other loyalty programs — grouped by category, with an expiry warning banner for anything expiring within 90 days
 - **PWA**: installable via `public/manifest.json`, icon sourced entirely from `public/icons/icon.svg` — one file, referenced everywhere (manifest, favicon, apple touch icon, sidebar logo). Swap that single file to rebrand.
 
@@ -30,6 +30,29 @@ Open http://localhost:3000 — it redirects to `/dashboard`.
 Balances are never stored — they're computed on read in `src/lib/finance.ts`
 (`accountBalance()`), so editing or deleting a transaction automatically
 corrects every downstream number.
+
+## Accounts screen
+
+- **Net position**: `getNetPosition()` splits assets (everything except
+  credit cards) from liabilities (credit card balances, already negative).
+  The "vs last month" % compares against `getNetPositionAsOf()` 30 real
+  days ago — with the shipped sample data this often reads 0%, since the
+  sample transactions are clustered in a fixed historical window rather
+  than the actual trailing 30 days. That's expected with static demo data.
+- **Credit card due dates**: `nextOccurrenceOfDay()` in `finance.ts` turns
+  a stored day-of-month (`due_day`, `statement_day`) into the next real
+  calendar date — rolls to next month if that day's already passed this
+  month.
+- **Add Account**: `/accounts/add` is a type picker (Bank/Credit
+  Card/Cash/Wallet) branching to a dedicated form per type, each posting
+  to `POST /api/accounts` (same local-filesystem caveat as the transaction
+  routes). A credit card's "Current Due Amount" field becomes its
+  `initial_balance`, stored as negative debt — the same role
+  `initial_balance` plays for every other account type.
+- **Account detail** (`/accounts/[id]`) shows a full info grid plus that
+  account's own transactions, with "View All" linking to
+  `/transactions?account={id}` — the Transactions page reads that query
+  param on load and pre-applies it as an Account filter.
 
 ## Bank icons
 

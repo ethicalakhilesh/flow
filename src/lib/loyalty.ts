@@ -107,3 +107,9 @@ export function formatShortDate(dateStr: string): string {
 export function formatPoints(points: number): string {
   return points.toLocaleString("en-IN");
 }
+
+/** "CV1234567" -> "CV12 3456 7" — reads like a card number instead of a raw string. */
+export function formatMemberId(memberId?: string): string {
+  if (!memberId) return "";
+  return memberId.replace(/(.{4})/g, "$1 ").trim();
+}

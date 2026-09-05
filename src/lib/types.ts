@@ -8,6 +8,20 @@ export interface Account {
   initial_balance: number;
   currency: string;
   status: "active" | "archived";
+
+  // Display / detail fields for the Accounts UI
+  account_subtype?: string; // "Savings Account", "Salary Account", "Current Account" — shown under the name
+  last_four?: string; // masked as •••• 1234
+  is_primary?: boolean;
+  ifsc_code?: string;
+  account_holder?: string;
+  opened_date?: string; // ISO date
+
+  // Credit-card-specific fields (undefined for non-card accounts)
+  credit_limit?: number;
+  statement_day?: number; // day of month, 1-31
+  due_day?: number; // day of month, 1-31
+  payment_reminder?: boolean;
 }
 
 export type TransactionType = "income" | "expense" | "transfer";

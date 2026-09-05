@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { getTransactions, getCategoryById, getAccounts, getCategories } from "@/lib/finance";
 import TransactionRow from "@/components/TransactionRow";
@@ -12,16 +13,25 @@ import {
   type TransactionFilters,
 } from "@/lib/transactionFilters";
 
-export default function TransactionsPage() {
+// Reads the `?account=` query param (set by "View All" on an account detail
+// page) to pre-filter the list. Wrapped in Suspense because useSearchParams
+// requires it in the app router, even in a fully client-rendered page.
+function TransactionsPageInner() {
+  const searchParams = useSearchParams();
+  const accountParam = searchParams.get("account");
+
   const allTransactions = useMemo(() => getTransactions(), []);
   const accounts = useMemo(() => getAccounts(), []);
   const categories = useMemo(() => getCategories(), []);
 
   const [query, setQuery] = useState("");
-  const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<TransactionFilters>(() =>
+    accountParam ? { ...DEFAULT_FILTERS, accountIds: [accountParam] } : DEFAULT_FILTERS
+  );
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const activeCount = countActiveFilters(filters);
+  const filteredAccountName = accountParam ? accounts.find((a) => a.id === accountParam)?.name : null;
 
   const filtered = useMemo(() => {
     const byFilters = applyFilters(allTransactions, accounts, filters);
@@ -35,7 +45,11 @@ export default function TransactionsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 md:px-8 md:py-8">
-      <h1 className="mb-4 font-display text-2xl font-bold text-ink">Transactions</h1>
+      <h1 className="mb-1 font-display text-2xl font-bold text-ink">Transactions</h1>
+      {filteredAccountName && (
+        <p className="mb-3 text-sm text-muted">Showing transactions for {filteredAccountName}</p>
+      )}
+      {!filteredAccountName && <div className="mb-4" />}
 
       <div className="mb-4 flex items-center gap-2">
         <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
@@ -88,5 +102,13 @@ export default function TransactionsPage() {
         transactions={allTransactions}
       />
     </div>
+  );
+}
+
+export default function TransactionsPage() {
+  return (
+    <Suspense fallback={null}>
+      <TransactionsPageInner />
+    </Suspense>
   );
 }

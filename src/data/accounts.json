@@ -6,7 +6,13 @@
     "institution": "HDFC Bank",
     "initial_balance": 42000,
     "currency": "INR",
-    "status": "active"
+    "status": "active",
+    "account_subtype": "Savings Account",
+    "last_four": "4821",
+    "is_primary": true,
+    "ifsc_code": "HDFC0001234",
+    "account_holder": "Arjun Mehta",
+    "opened_date": "2023-03-12"
   },
   {
     "id": "acc_icici",
@@ -15,7 +21,12 @@
     "institution": "ICICI Bank",
     "initial_balance": 18000,
     "currency": "INR",
-    "status": "active"
+    "status": "active",
+    "account_subtype": "Salary Account",
+    "last_four": "7104",
+    "ifsc_code": "ICIC0005678",
+    "account_holder": "Arjun Mehta",
+    "opened_date": "2022-08-01"
   },
   {
     "id": "acc_cash",
@@ -23,15 +34,23 @@
     "type": "cash",
     "initial_balance": 5000,
     "currency": "INR",
-    "status": "active"
+    "status": "active",
+    "account_subtype": "Cash on Hand"
   },
   {
     "id": "acc_credit_card",
-    "name": "Credit Card",
+    "name": "HDFC Regalia",
     "type": "credit_card",
     "institution": "HDFC Bank",
     "initial_balance": 0,
     "currency": "INR",
-    "status": "active"
+    "status": "active",
+    "account_subtype": "Credit Card",
+    "last_four": "8932",
+    "account_holder": "Arjun Mehta",
+    "credit_limit": 150000,
+    "statement_day": 25,
+    "due_day": 15,
+    "payment_reminder": true
   }
 ]

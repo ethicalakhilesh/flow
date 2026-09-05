@@ -11,12 +11,12 @@
  * Nothing else needs to change; AccountCard renders whatever URL comes back.
  */
 export const BANK_ICON_MAP: Record<string, string> = {
-  "hdfc bank": "/icons/banks/hdfc.png",
-  "hdfc":  "/icons/banks/hdfc.png",
-  "icici bank": "https://www.icici.bank.in/favicon.ico",
-  "icici": "https://www.icici.bank.in/favicon.ico",
-  "axis bank": "https://www.axis.bank.in/favicon.ico",
-  "axis": "https://www.axis.bank.in/favicon.ico",
+  "hdfc bank": "/icons/banks/hdfc.svg",
+  "hdfc": "/icons/banks/hdfc.svg",
+  "icici bank": "/icons/banks/icici.svg",
+  "icici": "/icons/banks/icici.svg",
+  "axis bank": "/icons/banks/axis.svg",
+  "axis": "/icons/banks/axis.svg",
   "idfc bank": "/icons/banks/idfc-first.svg",
   "idfc first bank": "/icons/banks/idfc-first.svg",
   "idfc": "/icons/banks/idfc-first.svg",

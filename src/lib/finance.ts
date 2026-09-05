@@ -58,6 +58,90 @@ export function getAccountsWithBalances(): AccountWithBalance[] {
   }));
 }
 
+/** Groups accounts the same way the Accounts screen and Source filter do. */
+export function getBankAccounts(accounts: AccountWithBalance[]): AccountWithBalance[] {
+  return accounts.filter((a) => a.type === "bank" || a.type === "savings");
+}
+export function getCashWalletAccounts(accounts: AccountWithBalance[]): AccountWithBalance[] {
+  return accounts.filter((a) => a.type === "cash" || a.type === "wallet");
+}
+export function getCreditCardAccounts(accounts: AccountWithBalance[]): AccountWithBalance[] {
+  return accounts.filter((a) => a.type === "credit_card");
+}
+
+export interface NetPosition {
+  assets: number;
+  liabilities: number; // negative or zero
+  net: number;
+}
+
+/**
+ * Assets = everything that isn't a credit card (bank/savings/cash/wallet).
+ * Liabilities = credit card balances, which are already negative (see
+ * accountBalance — a card's balance goes negative as it's spent on, back
+ * toward zero as it's paid off). Net = assets + liabilities.
+ */
+export function getNetPosition(accounts: AccountWithBalance[]): NetPosition {
+  const assets = accounts
+    .filter((a) => a.type !== "credit_card")
+    .reduce((sum, a) => sum + a.current_balance, 0);
+  const liabilities = accounts
+    .filter((a) => a.type === "credit_card")
+    .reduce((sum, a) => sum + Math.min(0, a.current_balance), 0);
+  return { assets, liabilities, net: assets + liabilities };
+}
+
+/**
+ * Net position as it stood as of a past date, by only counting transactions
+ * up to that date. Used to compute the "vs last month" change on the
+ * Accounts screen. Note: with the shipped sample data (clustered around
+ * May–June 2026) compared against the real current date, this will often
+ * come out as 0% simply because there's no sample activity in the actual
+ * trailing 30 days — that's expected with static demo data, not a bug.
+ */
+export function getNetPositionAsOf(accounts: Account[], transactions: Transaction[], asOfDate: Date): NetPosition {
+  const upToDate = transactions.filter((t) => new Date(t.date) <= asOfDate);
+  const withBalances: AccountWithBalance[] = accounts.map((a) => ({
+    ...a,
+    current_balance: accountBalance(a, upToDate),
+  }));
+  return getNetPosition(withBalances);
+}
+
+export interface CreditCardUsage {
+  outstanding: number; // positive amount currently owed
+  available: number;
+  percentUsed: number;
+}
+
+export function getCreditCardUsage(account: AccountWithBalance): CreditCardUsage {
+  const limit = account.credit_limit ?? 0;
+  const outstanding = Math.max(0, -account.current_balance);
+  const available = Math.max(0, limit - outstanding);
+  const percentUsed = limit > 0 ? Math.round((outstanding / limit) * 100) : 0;
+  return { outstanding, available, percentUsed };
+}
+
+/** "•••• 4821", or "" if there's nothing to mask. */
+export function maskAccountNumber(lastFour?: string): string {
+  return lastFour ? `•••• ${lastFour}` : "";
+}
+
+/**
+ * The next calendar occurrence of a given day-of-month from `from` (default:
+ * today). If that day has already passed this month, rolls to next month.
+ * Used for credit card statement/due dates, which are recurring monthly
+ * rather than a single fixed date.
+ */
+export function nextOccurrenceOfDay(day: number, from: Date = new Date()): Date {
+  const today = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const candidate = new Date(from.getFullYear(), from.getMonth(), day);
+  if (candidate < today) {
+    candidate.setMonth(candidate.getMonth() + 1);
+  }
+  return candidate;
+}
+
 export function getTotalBalance(): number {
   return getAccountsWithBalances().reduce((sum, a) => sum + a.current_balance, 0);
 }

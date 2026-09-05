@@ -7,6 +7,9 @@ import { ChevronLeft, Pencil, Check, X as XIcon } from "lucide-react";
 import { getTransactions, getAccounts, getCategories, getCategoryById, formatCurrency } from "@/lib/finance";
 import MerchantIcon from "@/components/MerchantIcon";
 
+// Always render on demand for any id - never statically prerendered.
+export const dynamicParams = true;
+
 export default function TransactionDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const transactions = useMemo(() => getTransactions(), []);

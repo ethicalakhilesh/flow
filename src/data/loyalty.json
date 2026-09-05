@@ -8,7 +8,8 @@
     "member_id": "CV1234567",
     "starting_balance": 0,
     "tier": "Silver",
-    "expiry_date": "2027-03-31"
+    "expiry_date": "2027-03-31",
+    "card_color": "#5A2D82"
   },
   {
     "id": "loy_002",
@@ -19,7 +20,8 @@
     "member_id": "FR9988776",
     "starting_balance": 0,
     "tier": "Base",
-    "expiry_date": "2026-12-31"
+    "expiry_date": "2026-12-31",
+    "card_color": "#8B1D41"
   },
   {
     "id": "loy_003",
@@ -30,7 +32,8 @@
     "member_id": "MB4455667",
     "starting_balance": 5000,
     "tier": "Gold Elite",
-    "expiry_date": "2027-06-30"
+    "expiry_date": "2027-06-30",
+    "card_color": "#8C1D40"
   },
   {
     "id": "loy_004",
@@ -40,7 +43,8 @@
     "category": "hotel",
     "member_id": "IHG778899",
     "starting_balance": 0,
-    "tier": "Club"
+    "tier": "Club",
+    "card_color": "#4A2E83"
   },
   {
     "id": "loy_005",
@@ -49,6 +53,7 @@
     "points_name": "Reward Points",
     "category": "other",
     "starting_balance": 0,
-    "notes": "Redeem via SmartBuy for best value"
+    "notes": "Redeem via SmartBuy for best value",
+    "card_color": "#003B7A"
   }
 ]

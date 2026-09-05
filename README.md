@@ -112,6 +112,15 @@ or spending.
 
 ## Merchant icons
 
+`MembershipCard.tsx` (the card on each membership's detail page) is exactly
+a 1:1.586 aspect ratio, set via inline `style` rather than a Tailwind class
+so the value is unambiguous. Its color comes from `card_color` on the
+program's data — a single hex value, from which `buildCardGradient()` in
+`src/lib/color.ts` derives a 3-stop gradient. There's no color picker
+anywhere in the UI; it's set per program in `loyalty.json` (or wherever
+that data comes from once Airtable is wired in) and falls back to the
+brand teal if unset.
+
 Same pattern again, in `src/lib/merchantIcons.ts`, keyed on a transaction's
 `merchant` field. This one behaves slightly differently: an unmapped
 merchant returns `null` (not a generic fallback icon) so `MerchantIcon.tsx`

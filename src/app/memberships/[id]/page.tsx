@@ -12,6 +12,9 @@ import {
 import MembershipCard from "@/components/MembershipCard";
 import LoyaltyTransactionRow from "@/components/LoyaltyTransactionRow";
 
+// Always render on demand for any id - never statically prerendered.
+export const dynamicParams = true;
+
 export default function MembershipDetailPage({ params }: { params: { id: string } }) {
   const program = getProgramById(params.id);
   if (!program) notFound();

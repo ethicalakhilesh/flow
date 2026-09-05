@@ -92,6 +92,12 @@ export interface LoyaltyProgram {
   tier?: string; // e.g. "Gold", "Platinum"
   expiry_date?: string; // ISO date - points or tier expiry, if applicable
   notes?: string;
+  /**
+   * Base hex color for this program's card face (e.g. "#5A2D82"). Set per
+   * program in the data, not editable anywhere in the UI — MembershipCard
+   * derives a gradient from it. Falls back to the brand teal if unset.
+   */
+  card_color?: string;
 }
 
 export type LoyaltyTransactionType = "earned" | "redeemed" | "expired" | "adjusted" | "transferred";

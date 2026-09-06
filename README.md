@@ -196,19 +196,43 @@ live — no separate "Apply" step, results update as you toggle:
 
 ## Moving to Airtable (Phase 2)
 
-Everything reads through `src/lib/finance.ts`. To swap JSON for Airtable:
+**Read layer is built and testable, not yet wired into the app.** This is
+deliberate — Airtable's API is async (`fetch`), while `finance.ts`/`loyalty.ts`
+are called synchronously all over the app, including from several "use
+client" components. Swapping the data source is a bigger, separate step
+from building the fetch layer, so here's where things stand:
 
-1. Replace the three `getAccounts()` / `getTransactions()` / `getCategories()`
-   functions to fetch from Airtable's REST API instead of importing the JSON
-   files. Keep their return shapes identical (`Account[]`, `Transaction[]`,
-   `Category[]`) and nothing else in the app needs to change.
-2. Replace `src/app/api/transactions/route.ts` — swap the `fs.readFile` /
-   `fs.writeFile` calls for an Airtable `create` request. This route currently
-   writes to the local JSON file, which only works in local dev; Vercel's
-   production filesystem is read-only, so this **must** change before
-   deploying real usage.
-3. Add `AIRTABLE_API_KEY` and `AIRTABLE_BASE_ID` as environment variables in
-   Vercel's project settings once ready.
+**What exists now:**
+- `src/lib/airtable.ts` — low-level client. Handles auth (`AIRTABLE_API_KEY`
+  Bearer token), pagination (Airtable caps pages at 100 records), and
+  errors. Server-only — never import this from a "use client" file, or the
+  API key ships to the browser.
+- `src/lib/airtableData.ts` — one `fetch*()` function per table
+  (`fetchAccounts`, `fetchTransactions`, `fetchCategories`,
+  `fetchLoyaltyPrograms`, `fetchLoyaltyTransactions`), each mapping raw
+  Airtable records back into the exact same TypeScript types the rest of
+  the app already uses (reconstructing the nested `raw_data` object from
+  the flattened `raw_data_*` columns, handling Airtable's checkbox
+  quirk — it omits `false` checkboxes rather than sending them, so mappers
+  check `=== true` rather than truthy).
+- `GET /api/airtable-test` — hit this once your `.env.local` is filled in
+  (copy from `.env.local.example`) to confirm the connection and field
+  mapping work: returns a row count + first record per table. Delete this
+  route once you're confident it's working.
+
+**What's still ahead**, roughly in order:
+1. Decide the caching/revalidation strategy (currently `cache: "no-store"`
+   on every request — fine for testing, probably too chatty for production
+   given Airtable's rate limits).
+2. Convert the server-component pages (Dashboard, Accounts list/detail,
+   Memberships list/detail) to actually `await` the new fetchers instead of
+   importing JSON.
+3. For client components that need data (Transactions list/filters, Add
+   Transaction/Account forms), decide between: fetching via a Route Handler
+   the client calls, or having a server-component parent fetch once and
+   pass data down as props.
+4. Swap the `fs.writeFile` calls in the existing `/api/transactions` and
+   `/api/accounts` routes for real Airtable `create`/`update` requests.
 
 ## Known placeholders to revisit
 

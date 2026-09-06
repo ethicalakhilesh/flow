@@ -204,9 +204,17 @@ from building the fetch layer, so here's where things stand:
 
 **What exists now:**
 - `src/lib/airtable.ts` — low-level client. Handles auth (`AIRTABLE_API_KEY`
-  Bearer token), pagination (Airtable caps pages at 100 records), and
-  errors. Server-only — never import this from a "use client" file, or the
-  API key ships to the browser.
+  Bearer token), pagination (Airtable caps pages at 100 records), fetching a
+  full table (`fetchAllRecords`) or a single record by Airtable's own record
+  ID (`fetchRecord` — **not** the app's own `id` column; those are two
+  different identifiers, see the doc comment on `fetchRecord`), creating and
+  updating records (`createRecords`/`updateRecords`, auto-batched into
+  groups of 10 — Airtable's actual per-request limit, even though it's easy
+  to miss if you're going by the endpoint docs alone), resolving the app's
+  own `id` to an Airtable record ID via a `filterByFormula` query
+  (`findRecordIdByAppId` — needed because every write in this app is keyed
+  by app IDs, not Airtable's), and errors. Server-only — never import this
+  from a "use client" file, or the API key ships to the browser.
 - `src/lib/airtableData.ts` — one `fetch*()` function per table
   (`fetchAccounts`, `fetchTransactions`, `fetchCategories`,
   `fetchLoyaltyPrograms`, `fetchLoyaltyTransactions`), each mapping raw
@@ -214,7 +222,12 @@ from building the fetch layer, so here's where things stand:
   the app already uses (reconstructing the nested `raw_data` object from
   the flattened `raw_data_*` columns, handling Airtable's checkbox
   quirk — it omits `false` checkboxes rather than sending them, so mappers
-  check `=== true` rather than truthy).
+  check `=== true` rather than truthy), plus by-record-id single fetchers
+  and — mirroring the existing local write routes exactly, same
+  validation and defaults — `createTransactionInAirtable`,
+  `updateTransactionInAirtable` (by app id; only merchant/category_id are
+  editable, raw_data is never touched), and `createAccountInAirtable`
+  (including the "only one primary account per type" un-marking logic).
 - `GET /api/airtable-test` — hit this once your `.env.local` is filled in
   (copy from `.env.local.example`) to confirm the connection and field
   mapping work: returns a row count + first record per table. Delete this

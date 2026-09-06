@@ -1,6 +1,4 @@
-import accountsData from "@/data/accounts.json";
-import transactionsData from "@/data/transactions.json";
-import categoriesData from "@/data/categories.json";
+import { fetchAccounts, fetchTransactions, fetchCategories } from "@/lib/airtableData";
 import type {
   Account,
   AccountType,
@@ -9,22 +7,29 @@ import type {
   Transaction,
 } from "@/lib/types";
 
-export function getAccounts(): Account[] {
-  return accountsData as Account[];
+// These three are the only async functions in this file - everything else
+// is a pure function operating on arrays already fetched by a caller. Call
+// these from a Server Component (or another async context) and pass the
+// results down; never call them from a "use client" component directly.
+
+export async function getAccounts(): Promise<Account[]> {
+  return fetchAccounts();
 }
 
-export function getTransactions(): Transaction[] {
-  return (transactionsData as Transaction[]).slice().sort(
+export async function getTransactions(): Promise<Transaction[]> {
+  const transactions = await fetchTransactions();
+  return transactions.slice().sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }
 
-export function getCategories(): Category[] {
-  return categoriesData as Category[];
+export async function getCategories(): Promise<Category[]> {
+  return fetchCategories();
 }
 
-export function getCategoryById(id: string): Category | undefined {
-  return getCategories().find((c) => c.id === id);
+/** Pure lookup - pass in a categories array you already fetched, rather than fetching here. */
+export function getCategoryById(id: string, categories: Category[]): Category | undefined {
+  return categories.find((c) => c.id === id);
 }
 
 /**
@@ -50,9 +55,8 @@ export function accountBalance(account: Account, transactions: Transaction[]): n
   return account.initial_balance + delta;
 }
 
-export function getAccountsWithBalances(): AccountWithBalance[] {
-  const accounts = getAccounts();
-  const transactions = getTransactions();
+export async function getAccountsWithBalances(): Promise<AccountWithBalance[]> {
+  const [accounts, transactions] = await Promise.all([getAccounts(), getTransactions()]);
   return accounts.map((a) => ({
     ...a,
     current_balance: accountBalance(a, transactions),
@@ -193,8 +197,9 @@ export function nextOccurrenceOfDay(day: number, from: Date = new Date()): Date 
   return candidate;
 }
 
-export function getTotalBalance(): number {
-  return getAccountsWithBalances().reduce((sum, a) => sum + a.current_balance, 0);
+export async function getTotalBalance(): Promise<number> {
+  const accounts = await getAccountsWithBalances();
+  return accounts.reduce((sum, a) => sum + a.current_balance, 0);
 }
 
 export interface PeriodRange {
@@ -257,9 +262,10 @@ export interface CategoryBreakdownItem {
 export function categoryBreakdown(
   transactions: Transaction[],
   range: PeriodRange,
+  allCategories: Category[],
   type: "expense" | "income" = "expense"
 ): CategoryBreakdownItem[] {
-  const categories = getCategories().filter((c) => c.type === type);
+  const categories = allCategories.filter((c) => c.type === type);
   const inPeriod = transactions.filter((t) => t.type === type && inRange(t.date, range));
   const total = inPeriod.reduce((s, t) => s + t.amount, 0);
 

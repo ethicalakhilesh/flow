@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, CalendarClock } from "lucide-react";
 import {
+  getLoyaltyPrograms,
   getProgramById,
   programBalance,
   getLoyaltyTransactions,
@@ -15,13 +16,16 @@ import LoyaltyTransactionRow from "@/components/LoyaltyTransactionRow";
 // Always render on demand for any id - never statically prerendered.
 export const dynamicParams = true;
 
-export default function MembershipDetailPage({ params }: { params: { id: string } }) {
-  const program = getProgramById(params.id);
+export default async function MembershipDetailPage({ params }: { params: { id: string } }) {
+  const [programs, allTransactions] = await Promise.all([
+    getLoyaltyPrograms(),
+    getLoyaltyTransactions(),
+  ]);
+  const program = getProgramById(params.id, programs);
   if (!program) notFound();
 
-  const allTransactions = getLoyaltyTransactions();
   const balance = programBalance(program, allTransactions);
-  const transactions = getTransactionsForProgram(program.id);
+  const transactions = getTransactionsForProgram(program.id, allTransactions);
 
   const expiryLabel = formatExpiry(program.expiry_date);
   const expiring = isExpiringSoon(program.expiry_date);

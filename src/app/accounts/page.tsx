@@ -14,9 +14,9 @@ import NetPositionCard from "@/components/NetPositionCard";
 import BankAccountRow from "@/components/BankAccountRow";
 import CreditCardRow from "@/components/CreditCardRow";
 
-export default function AccountsPage() {
-  const accounts = getAccountsWithBalances();
-  const transactions = getTransactions();
+export default async function AccountsPage() {
+  const accounts = await getAccountsWithBalances();
+  const transactions = await getTransactions();
 
   const bankAccounts = [...getBankAccounts(accounts), ...getCashWalletAccounts(accounts)];
   const creditCards = getCreditCardAccounts(accounts);

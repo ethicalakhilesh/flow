@@ -4,6 +4,7 @@ import { ChevronLeft, Link2 } from "lucide-react";
 import {
   getAccountsWithBalances,
   getTransactions,
+  getCategories,
   getCreditCardUsage,
   nextOccurrenceOfDay,
   formatCurrency,
@@ -22,8 +23,12 @@ const TYPE_LABEL = {
   credit_card: "Credit Card",
 };
 
-export default function AccountDetailPage({ params }: { params: { id: string } }) {
-  const accounts = getAccountsWithBalances();
+export default async function AccountDetailPage({ params }: { params: { id: string } }) {
+  const [accounts, allTransactions, categories] = await Promise.all([
+    getAccountsWithBalances(),
+    getTransactions(),
+    getCategories(),
+  ]);
   const account = accounts.find((a) => a.id === params.id);
   if (!account) notFound();
 
@@ -34,7 +39,6 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
     (a) => a.parent_account_id === account.id
   );
 
-  const allTransactions = getTransactions();
   const accountTransactions = allTransactions.filter((t) => t.account_id === account.id);
   const recent = accountTransactions.slice(0, 5);
 
@@ -158,7 +162,7 @@ export default function AccountDetailPage({ params }: { params: { id: string } }
         ) : (
           <div className="divide-y divide-border px-2">
             {recent.map((t) => (
-              <TransactionRow key={t.id} transaction={t} />
+              <TransactionRow key={t.id} transaction={t} categories={categories} accounts={accounts} />
             ))}
           </div>
         )}

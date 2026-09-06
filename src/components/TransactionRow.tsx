@@ -1,16 +1,26 @@
 import Link from "next/link";
-import type { Transaction } from "@/lib/types";
-import { formatCurrency, formatShortDate, getCategoryById, getAccounts } from "@/lib/finance";
+import type { Account, Category, Transaction } from "@/lib/types";
+import { formatCurrency, formatShortDate, getCategoryById } from "@/lib/finance";
 import MerchantIcon from "./MerchantIcon";
 
-export default function TransactionRow({ transaction }: { transaction: Transaction }) {
-  const category = getCategoryById(transaction.category_id);
+export default function TransactionRow({
+  transaction,
+  categories,
+  accounts,
+}: {
+  transaction: Transaction;
+  /** Pass in a categories array you already fetched - this component never fetches on its own. */
+  categories: Category[];
+  /** Only needed to resolve the linked account's name on transfer rows. */
+  accounts?: Account[];
+}) {
+  const category = getCategoryById(transaction.category_id, categories);
   const isIncome = transaction.type === "income";
   const isTransfer = transaction.type === "transfer";
 
   let subtitle = `${category?.name} · ${formatShortDate(transaction.date)}`;
   if (isTransfer && transaction.linked_account_id) {
-    const linkedAccount = getAccounts().find((a) => a.id === transaction.linked_account_id);
+    const linkedAccount = accounts?.find((a) => a.id === transaction.linked_account_id);
     const arrow = transaction.transfer_direction === "out" ? "to" : "from";
     subtitle = `Transfer ${arrow} ${linkedAccount?.name ?? "linked account"} · ${formatShortDate(transaction.date)}`;
   }

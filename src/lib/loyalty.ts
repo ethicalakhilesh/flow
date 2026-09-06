@@ -1,27 +1,33 @@
-import loyaltyData from "@/data/loyalty.json";
-import loyaltyTransactionsData from "@/data/loyalty-transactions.json";
+import { fetchLoyaltyPrograms, fetchLoyaltyTransactions } from "@/lib/airtableData";
 import type {
   LoyaltyCategory,
   LoyaltyProgram,
   LoyaltyTransaction,
 } from "@/lib/types";
 
-export function getLoyaltyPrograms(): LoyaltyProgram[] {
-  return loyaltyData as LoyaltyProgram[];
+// The only two async functions in this file - call from a Server Component
+// and pass results down; everything else here is a pure function over
+// already-fetched arrays.
+
+export async function getLoyaltyPrograms(): Promise<LoyaltyProgram[]> {
+  return fetchLoyaltyPrograms();
 }
 
-export function getLoyaltyTransactions(): LoyaltyTransaction[] {
-  return (loyaltyTransactionsData as LoyaltyTransaction[])
+export async function getLoyaltyTransactions(): Promise<LoyaltyTransaction[]> {
+  const transactions = await fetchLoyaltyTransactions();
+  return transactions
     .slice()
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export function getProgramById(id: string): LoyaltyProgram | undefined {
-  return getLoyaltyPrograms().find((p) => p.id === id);
+/** Pure lookup - pass in a programs array you already fetched. */
+export function getProgramById(id: string, programs: LoyaltyProgram[]): LoyaltyProgram | undefined {
+  return programs.find((p) => p.id === id);
 }
 
-export function getTransactionsForProgram(programId: string): LoyaltyTransaction[] {
-  return getLoyaltyTransactions().filter((t) => t.program_id === programId);
+/** Pure filter - pass in a transactions array you already fetched. */
+export function getTransactionsForProgram(programId: string, transactions: LoyaltyTransaction[]): LoyaltyTransaction[] {
+  return transactions.filter((t) => t.program_id === programId);
 }
 
 /**
@@ -55,9 +61,11 @@ export interface LoyaltyProgramWithBalance extends LoyaltyProgram {
   points_balance: number;
 }
 
-export function getProgramsWithBalances(): LoyaltyProgramWithBalance[] {
-  const programs = getLoyaltyPrograms();
-  const transactions = getLoyaltyTransactions();
+/** Pure - pass in programs/transactions arrays you already fetched. */
+export function getProgramsWithBalances(
+  programs: LoyaltyProgram[],
+  transactions: LoyaltyTransaction[]
+): LoyaltyProgramWithBalance[] {
   return programs.map((p) => ({
     ...p,
     points_balance: programBalance(p, transactions),

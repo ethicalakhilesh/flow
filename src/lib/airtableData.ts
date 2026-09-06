@@ -1,4 +1,4 @@
-import { fetchAllRecords, fetchRecord, createRecord, updateRecord, updateRecords, findRecordIdByAppId } from "@/lib/airtable";
+import { fetchAllRecords, fetchRecord, createRecord, createRecords, updateRecord, updateRecords, findRecordIdByAppId } from "@/lib/airtable";
 import type {
   Account,
   AccountType,
@@ -288,6 +288,71 @@ export async function createTransactionInAirtable(input: NewTransactionInput): P
   };
   const created = await createRecord<AirtableTransactionFields>("transactions", fields);
   return mapTransaction(created.fields);
+}
+
+export interface NewTransferInput {
+  from_account_id: string;
+  to_account_id: string;
+  amount: number;
+  date: string;
+  note?: string;
+}
+
+/**
+ * Creates both legs of a transfer in a single Airtable request (the batch
+ * create endpoint takes up to 10 records per call, so 2 is one request, not
+ * two) — same "credit card bill payment, ATM withdrawal" pattern as the
+ * local route, just atomic across both rows instead of writing a JSON file
+ * twice.
+ */
+export async function createTransferInAirtable(input: NewTransferInput): Promise<[Transaction, Transaction]> {
+  const now = Date.now();
+  const transferId = `tr_${now}`;
+  const outId = `txn_${now}_out`;
+  const inId = `txn_${now}_in`;
+  const createdAt = new Date().toISOString();
+
+  const outFields: AirtableTransactionFields = {
+    id: outId,
+    account_id: input.from_account_id,
+    type: "transfer",
+    amount: input.amount,
+    category_id: "cat_transfer",
+    date: input.date,
+    note: input.note,
+    created_at: createdAt,
+    transfer_id: transferId,
+    transfer_direction: "out",
+    linked_account_id: input.to_account_id,
+    linked_transaction_id: inId,
+    raw_data_category_id: "cat_transfer",
+    raw_data_note: input.note,
+    edited: false,
+  };
+
+  const inFields: AirtableTransactionFields = {
+    id: inId,
+    account_id: input.to_account_id,
+    type: "transfer",
+    amount: input.amount,
+    category_id: "cat_transfer",
+    date: input.date,
+    note: input.note,
+    created_at: createdAt,
+    transfer_id: transferId,
+    transfer_direction: "in",
+    linked_account_id: input.from_account_id,
+    linked_transaction_id: outId,
+    raw_data_category_id: "cat_transfer",
+    raw_data_note: input.note,
+    edited: false,
+  };
+
+  const [createdOut, createdIn] = await createRecords<AirtableTransactionFields>("transactions", [
+    { fields: outFields },
+    { fields: inFields },
+  ]);
+  return [mapTransaction(createdOut.fields), mapTransaction(createdIn.fields)];
 }
 
 /**

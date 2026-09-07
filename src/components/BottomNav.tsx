@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ArrowLeftRight, Plus, Wallet, Award } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Plus, Wallet, Award, PiggyBank } from "lucide-react";
 
 const LEFT_ITEMS = [
   { href: "/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { href: "/budget", label: "Budget", icon: PiggyBank },
 ];
 
 const RIGHT_ITEMS = [
@@ -21,12 +22,12 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur md:hidden">
-      <div className="relative mx-auto flex max-w-md items-center justify-between px-3 py-2">
+      <div className="relative mx-auto flex max-w-md items-center justify-between px-1.5 py-2">
         {LEFT_ITEMS.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] font-medium ${
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 text-[10px] font-medium ${
               isActive(href) ? "text-brand" : "text-muted"
             }`}
           >
@@ -49,7 +50,7 @@ export default function BottomNav() {
           <Link
             key={href}
             href={href}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[11px] font-medium ${
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-1 text-[10px] font-medium ${
               isActive(href) ? "text-brand" : "text-muted"
             }`}
           >

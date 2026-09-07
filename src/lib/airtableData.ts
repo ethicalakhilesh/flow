@@ -2,6 +2,9 @@ import { fetchAllRecords, fetchRecord, createRecord, createRecords, updateRecord
 import type {
   Account,
   AccountType,
+  Budget,
+  BudgetPeriodType,
+  BudgetVersion,
   Category,
   LoyaltyCategory,
   LoyaltyProgram,
@@ -92,6 +95,23 @@ interface AirtableLoyaltyTransactionFields {
   points?: number;
   date?: string;
   description?: string;
+}
+
+interface AirtableBudgetFields {
+  id?: string;
+  category_id?: string;
+  active?: boolean;
+  created_at?: string;
+}
+
+interface AirtableBudgetVersionFields {
+  id?: string;
+  budget_id?: string;
+  amount?: number;
+  period_type?: BudgetPeriodType;
+  recurrence_day?: number;
+  effective_from?: string;
+  created_at?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -190,6 +210,27 @@ function mapLoyaltyTransaction(f: AirtableLoyaltyTransactionFields): LoyaltyTran
   };
 }
 
+function mapBudget(f: AirtableBudgetFields): Budget {
+  return {
+    id: f.id ?? "",
+    category_id: f.category_id ?? "",
+    active: f.active === true,
+    created_at: f.created_at ?? "",
+  };
+}
+
+function mapBudgetVersion(f: AirtableBudgetVersionFields): BudgetVersion {
+  return {
+    id: f.id ?? "",
+    budget_id: f.budget_id ?? "",
+    amount: f.amount ?? 0,
+    period_type: f.period_type ?? "month",
+    recurrence_day: f.recurrence_day,
+    effective_from: f.effective_from ?? "",
+    created_at: f.created_at ?? "",
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Public fetchers - one per table. Table names must match Airtable exactly.
 // ---------------------------------------------------------------------------
@@ -217,6 +258,16 @@ export async function fetchLoyaltyPrograms(): Promise<LoyaltyProgram[]> {
 export async function fetchLoyaltyTransactions(): Promise<LoyaltyTransaction[]> {
   const records = await fetchAllRecords<AirtableLoyaltyTransactionFields>("loyalty_transactions");
   return records.map((r) => mapLoyaltyTransaction(r.fields));
+}
+
+export async function fetchBudgets(): Promise<Budget[]> {
+  const records = await fetchAllRecords<AirtableBudgetFields>("budgets");
+  return records.map((r) => mapBudget(r.fields));
+}
+
+export async function fetchBudgetVersions(): Promise<BudgetVersion[]> {
+  const records = await fetchAllRecords<AirtableBudgetVersionFields>("budget_versions");
+  return records.map((r) => mapBudgetVersion(r.fields));
 }
 
 // ---------------------------------------------------------------------------
@@ -249,6 +300,11 @@ export async function fetchLoyaltyProgramByRecordId(recordId: string): Promise<L
 export async function fetchLoyaltyTransactionByRecordId(recordId: string): Promise<LoyaltyTransaction | null> {
   const record = await fetchRecord<AirtableLoyaltyTransactionFields>("loyalty_transactions", recordId);
   return record ? mapLoyaltyTransaction(record.fields) : null;
+}
+
+export async function fetchBudgetByRecordId(recordId: string): Promise<Budget | null> {
+  const record = await fetchRecord<AirtableBudgetFields>("budgets", recordId);
+  return record ? mapBudget(record.fields) : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -438,4 +494,86 @@ export async function createAccountInAirtable(input: NewAccountInput): Promise<A
 
   const created = await createRecord<AirtableAccountFields>("accounts", fields);
   return mapAccount(created.fields);
+}
+
+// ---------------------------------------------------------------------------
+// Budgets. A new budget is a Budget row + its first BudgetVersion, created
+// together in one batch request. Amending an EXISTING budget only ever adds
+// a new BudgetVersion — see createBudgetVersionInAirtable — never touches
+// the budget row or any prior version, which is the entire mechanism behind
+// "amendments don't affect old records".
+// ---------------------------------------------------------------------------
+
+export interface NewBudgetInput {
+  category_id: string;
+  amount: number;
+  period_type: BudgetPeriodType;
+  recurrence_day?: number;
+  effective_from: string;
+}
+
+export async function createBudgetInAirtable(
+  input: NewBudgetInput
+): Promise<{ budget: Budget; version: BudgetVersion }> {
+  const now = Date.now();
+  const budgetId = `bud_${now}`;
+  const versionId = `budv_${now}`;
+  const createdAt = new Date().toISOString();
+
+  const budgetFields: AirtableBudgetFields = {
+    id: budgetId,
+    category_id: input.category_id,
+    active: true,
+    created_at: createdAt,
+  };
+
+  const versionFields: AirtableBudgetVersionFields = {
+    id: versionId,
+    budget_id: budgetId,
+    amount: input.amount,
+    period_type: input.period_type,
+    recurrence_day: input.recurrence_day,
+    effective_from: input.effective_from,
+    created_at: createdAt,
+  };
+
+  const [createdBudget] = await createRecords<AirtableBudgetFields>("budgets", [{ fields: budgetFields }]);
+  const [createdVersion] = await createRecords<AirtableBudgetVersionFields>("budget_versions", [
+    { fields: versionFields },
+  ]);
+
+  return { budget: mapBudget(createdBudget.fields), version: mapBudgetVersion(createdVersion.fields) };
+}
+
+export interface NewBudgetVersionInput {
+  amount: number;
+  period_type: BudgetPeriodType;
+  recurrence_day?: number;
+  effective_from: string;
+}
+
+/** Amends a budget by adding a new version — the existing budget row and all prior versions are untouched. */
+export async function createBudgetVersionInAirtable(
+  budgetAppId: string,
+  input: NewBudgetVersionInput
+): Promise<BudgetVersion> {
+  const fields: AirtableBudgetVersionFields = {
+    id: `budv_${Date.now()}`,
+    budget_id: budgetAppId,
+    amount: input.amount,
+    period_type: input.period_type,
+    recurrence_day: input.recurrence_day,
+    effective_from: input.effective_from,
+    created_at: new Date().toISOString(),
+  };
+  const created = await createRecord<AirtableBudgetVersionFields>("budget_versions", fields);
+  return mapBudgetVersion(created.fields);
+}
+
+/** Toggles a budget active/inactive (e.g. "delete" without losing its version history). */
+export async function setBudgetActiveInAirtable(budgetAppId: string, active: boolean): Promise<Budget | null> {
+  const recordId = await findRecordIdByAppId("budgets", budgetAppId);
+  if (!recordId) return null;
+  const updated = await updateRecord<AirtableBudgetFields>("budgets", recordId, { active });
+  return mapBudget(updated.fields);
 }

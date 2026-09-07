@@ -129,3 +129,40 @@ export interface LoyaltyTransaction {
   date: string; // ISO date
   description?: string; // e.g. "Flight BLR–LHR", "Redeemed for hotel stay"
 }
+
+export type BudgetPeriodType = "day" | "week" | "month";
+
+/**
+ * A budget's stable identity — which category it tracks. The amount,
+ * period, and recurrence are NOT here; they live on BudgetVersion so that
+ * amending a budget never rewrites history (see BudgetVersion below).
+ */
+export interface Budget {
+  id: string;
+  category_id: string;
+  active: boolean;
+  created_at: string;
+}
+
+/**
+ * One effective-dated version of a budget's terms. Editing a budget means
+ * creating a NEW version with a later effective_from — never mutating an
+ * existing one — so past periods keep computing against whatever version
+ * was active back then, and only periods from effective_from onward see
+ * the new amount/cadence.
+ */
+export interface BudgetVersion {
+  id: string;
+  budget_id: string;
+  amount: number;
+  period_type: BudgetPeriodType;
+  /**
+   * Which day the period resets on:
+   *   - period_type "week": 0-6, Sunday=0 (e.g. 0 = "resets every Sunday")
+   *   - period_type "month": 1-31, day of month (e.g. 25 = "resets on the 25th")
+   *   - period_type "day": unused, every calendar day is its own period
+   */
+  recurrence_day?: number;
+  effective_from: string; // ISO date - first day this version applies from
+  created_at: string;
+}

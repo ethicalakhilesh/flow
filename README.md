@@ -19,6 +19,7 @@ Open http://localhost:3000 — it redirects to `/dashboard`.
 - **Transactions**: searchable, filterable list (all / income / expense)
 - **Accounts**: total net position (assets vs. liabilities, hide/show toggle), grouped Bank Accounts / Credit Cards lists with real bank icons and masked numbers, per-account detail pages with a transaction history, and a full Add Account flow (Bank/Credit Card/Cash/Wallet)
 - **Memberships**: airline miles, hotel points, and other loyalty programs — grouped by category, with an expiry warning banner for anything expiring within 90 days
+- **Budget**: per-category spending limits with day/week/month recurrence and effective-dated amendments (editing a recurring budget never rewrites its history — see the "Budget" section below)
 - **PWA**: installable via `public/manifest.json`, icon sourced entirely from `public/icons/icon.svg` — one file, referenced everywhere (manifest, favicon, apple touch icon, sidebar logo). Swap that single file to rebrand.
 
 ## Data model
@@ -58,6 +59,64 @@ inherited from the primary.
 **Where it shows up**: `CreditCardRow` (Accounts list) shows "Add-on of
 {primary}" / "{N} add-on cards sharing this limit" as appropriate, and the
 account detail page has a dedicated linkage section linking each direction.
+
+## Budget
+
+Two new Airtable tables back this — you'll need to create them in your base
+before this page will show anything (see schema below).
+
+**Why two tables**: a `Budget` row is the stable identity ("a budget for
+Food & Dining"). The amount, period type, and recurrence live on
+`BudgetVersion` instead, each with an `effective_from` date. **Amending a
+budget only ever inserts a new version — it never edits an existing one.**
+`getActiveVersion()` in `src/lib/budget.ts` picks whichever version has the
+latest `effective_from` that isn't in the future, so:
+- Viewing *today's* period always uses the newest version that's kicked in.
+- Anything computed for a *past* period naturally uses whatever version was
+  active back then, with zero special-casing — because that's just what
+  "latest effective_from ≤ that date" resolves to for an earlier date.
+
+**Period types & recurrence**:
+- `day` — resets every calendar day, no recurrence anchor needed.
+- `week` — `recurrence_day` is 0–6 (Sunday=0), the weekday the period
+  starts on (e.g. "every Sunday").
+- `month` — `recurrence_day` is 1–31, the day-of-month the period starts on
+  (e.g. `1` for a calendar month, or `25` to align with a credit card
+  statement cycle). Clamped for short months — a `recurrence_day` of 31
+  correctly falls back to the last day of a 30-day or 28/29-day month
+  rather than erroring.
+
+All of this period-boundary math (`getPeriodBounds`) was verified against a
+handful of edge cases (month-end clamping, weekly boundaries) before
+shipping — see the reasoning in `budget.ts`'s doc comments if you're
+extending it.
+
+**Sample data** includes one deliberate amendment: the Food & Dining budget
+started at ₹20,000/month (`effective_from: 2026-04-01`) and was raised to
+₹25,000/month starting June (`effective_from: 2026-06-01`) — both versions
+exist in `budget_versions.json`/`.csv`, so you can see the history feature
+working without creating one yourself.
+
+**Airtable tables to create:**
+
+| Table: `budgets` | Type | Notes |
+|---|---|---|
+| `id` | Single line text (Primary) | e.g. `bud_001` |
+| `category_id` | Single line text | → Categories.id |
+| `active` | Checkbox | Deactivating hides it without losing version history |
+| `created_at` | Single line text | ISO timestamp |
+
+| Table: `budget_versions` | Type | Notes |
+|---|---|---|
+| `id` | Single line text (Primary) | e.g. `budv_001` |
+| `budget_id` | Single line text | → Budgets.id |
+| `amount` | Number | |
+| `period_type` | Single select | Options: `day`, `week`, `month` |
+| `recurrence_day` | Number | 0–6 for week, 1–31 for month, blank for day |
+| `effective_from` | Date | |
+| `created_at` | Single line text | ISO timestamp |
+
+CSVs with the sample data for both tables are attached alongside this reply.
 
 ## Accounts screen
 

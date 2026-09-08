@@ -22,6 +22,76 @@ Open http://localhost:3000 — it redirects to `/dashboard`.
 - **Budget**: per-category spending limits with day/week/month recurrence and effective-dated amendments (editing a recurring budget never rewrites its history — see the "Budget" section below)
 - **PWA**: installable via `public/manifest.json`, icon sourced entirely from `public/icons/icon.svg` — one file, referenced everywhere (manifest, favicon, apple touch icon, sidebar logo). Swap that single file to rebrand.
 
+## Roadmap
+
+What's done vs. what's still ahead, organized by area of a typical personal
+finance app. Checked items link to more detail further down this file where
+relevant.
+
+**Core tracking**
+- [x] Multiple account types (bank, cash, wallet, credit card)
+- [x] Income/expense/transfer transactions, categorized
+- [x] Manual entry
+- [ ] Automated import (bank statement/email/SMS parsing — this is what the
+      separate Python statement-parser project feeds into)
+- [ ] Auto-categorization rules (e.g. "Swiggy → Food & Dining" automatically)
+- [ ] Recurring transaction templates (auto-log rent every 1st, etc.)
+
+**Budgeting**
+- [x] Per-category budgets, day/week/month recurrence, effective-dated amendments
+- [ ] Budget rollover (unused amount carries to next period)
+- [ ] Envelope-style budgeting (allocate income across categories upfront)
+
+**Net worth**
+- [x] Assets vs. liabilities, total net position
+- [ ] Net worth trend over time (a chart, not just the current snapshot)
+- [ ] Multi-currency support
+
+**Credit cards**
+- [x] Statement/due dates, utilization, add-on cards with shared/separate limits
+- [ ] Minimum payment tracking, interest/APR tracking
+- [ ] Cashback/reward tracking tied to spend (separate from loyalty points)
+
+**Bills & subscriptions**
+- [ ] Recurring bill detection + reminders
+- [ ] Subscription cost rollup ("₹2,400/month across 6 subscriptions")
+- [ ] Calendar view of upcoming payments
+
+**Goals**
+- [ ] Savings goals with target date + progress
+- [ ] Debt payoff goals (snowball/avalanche tracking)
+
+**Insights & analytics**
+- [x] Category breakdown, spending trend chart, month selector
+- [ ] Month-over-month / year-over-year comparison
+- [ ] Merchant-level insights ("top 5 merchants this year")
+- [ ] Anomaly flags ("40% more on dining than usual")
+- [ ] Cash flow forecast (projected balance based on upcoming bills/income)
+
+**Investments**
+- [ ] Stocks/mutual funds/crypto tracking, portfolio value, combined net worth
+      (a bigger, separate domain from everything else here)
+
+**Loyalty/rewards**
+- [x] Points/miles tracking, expiry alerts, points ledger
+
+**Reports & export**
+- [ ] CSV/PDF export, custom date-range reports
+- [ ] Tax-relevant category tagging
+
+**Reminders & notifications**
+- [ ] Bill due dates, budget threshold alerts, low balance alerts — the
+      underlying data already exists (`due_day`, budget status), just no
+      push/notification layer yet
+
+**Security**
+- [ ] PIN/biometric lock
+- [x] Audit trail via `raw_data` (edits never lose the original values)
+
+**Multi-user**
+- [ ] Shared budgets/expense splitting — likely stays unbuilt, out of scope
+      for a single-user personal app
+
 ## Data model
 
 Schema lives in Airtable now (see the "Moving to Airtable" section below for

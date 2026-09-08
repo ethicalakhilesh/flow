@@ -2,7 +2,8 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal } from "lucide-react";
+import Link from "next/link";
+import { Search, SlidersHorizontal, Plus } from "lucide-react";
 import { getCategoryById } from "@/lib/finance";
 import type { Account, Category, Transaction } from "@/lib/types";
 import TransactionRow from "@/components/TransactionRow";
@@ -13,6 +14,8 @@ import {
   countActiveFilters,
   type TransactionFilters,
 } from "@/lib/transactionFilters";
+
+const DEFAULT_VISIBLE_COUNT = 20;
 
 // Reads the `?account=` query param (set by "View All" on an account detail
 // page) to pre-filter the list. Wrapped in Suspense because useSearchParams
@@ -48,9 +51,26 @@ function TransactionsPageInner({
     });
   }, [transactions, accounts, categories, filters, query]);
 
+  // No filters and no search = the default view, capped to the most recent
+  // 20. The moment either is used, show every match - capping a filtered
+  // result would be confusing (you asked for something specific, you
+  // should see all of it).
+  const isDefaultView = activeCount === 0 && query.trim() === "";
+  const visible = isDefaultView ? filtered.slice(0, DEFAULT_VISIBLE_COUNT) : filtered;
+  const isTruncated = isDefaultView && filtered.length > DEFAULT_VISIBLE_COUNT;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 md:px-8 md:py-8">
-      <h1 className="mb-1 font-display text-2xl font-bold text-ink">Transactions</h1>
+      <div className="mb-1 flex items-center justify-between">
+        <h1 className="font-display text-2xl font-bold text-ink">Transactions</h1>
+        <Link
+          href="/transactions/add"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white"
+          aria-label="Add transaction"
+        >
+          <Plus size={18} />
+        </Link>
+      </div>
       {filteredAccountName && (
         <p className="mb-3 text-sm text-muted">Showing transactions for {filteredAccountName}</p>
       )}
@@ -91,11 +111,16 @@ function TransactionsPageInner({
           </p>
         )}
         <div className="divide-y divide-border px-2">
-          {filtered.map((t) => (
+          {visible.map((t) => (
             <TransactionRow key={t.id} transaction={t} categories={categories} accounts={accounts} />
           ))}
         </div>
       </div>
+      {isTruncated && (
+        <p className="mt-2 text-center text-xs text-muted">
+          Showing the last {DEFAULT_VISIBLE_COUNT} of {filtered.length} — search or filter to see more.
+        </p>
+      )}
 
       <TransactionFilterSheet
         open={sheetOpen}

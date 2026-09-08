@@ -577,3 +577,40 @@ export async function setBudgetActiveInAirtable(budgetAppId: string, active: boo
   const updated = await updateRecord<AirtableBudgetFields>("budgets", recordId, { active });
   return mapBudget(updated.fields);
 }
+
+// ---------------------------------------------------------------------------
+// Loyalty programs (Memberships)
+// ---------------------------------------------------------------------------
+
+export interface NewLoyaltyProgramInput {
+  brand: string;
+  program_name: string;
+  points_name: string;
+  category: LoyaltyCategory;
+  member_id?: string;
+  starting_balance: number;
+  tier?: string;
+  expiry_date?: string;
+  notes?: string;
+}
+
+export async function createLoyaltyProgramInAirtable(input: NewLoyaltyProgramInput): Promise<LoyaltyProgram> {
+  const fields: AirtableLoyaltyProgramFields = {
+    id: `loy_${Date.now()}`,
+    brand: input.brand,
+    program_name: input.program_name,
+    points_name: input.points_name,
+    category: input.category,
+    member_id: input.member_id,
+    starting_balance: input.starting_balance,
+    tier: input.tier,
+    expiry_date: input.expiry_date,
+    notes: input.notes,
+    // card_color is deliberately not settable from the UI - see the doc
+    // comment on LoyaltyProgram.card_color in types.ts. Leaving it unset
+    // here means MembershipCard falls back to the brand teal until/unless
+    // someone sets a real value directly in the data.
+  };
+  const created = await createRecord<AirtableLoyaltyProgramFields>("loyalty_programs", fields);
+  return mapLoyaltyProgram(created.fields);
+}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getLoyaltyPrograms, getLoyaltyTransactions, getProgramsWithBalances, groupByCategory, CATEGORY_LABEL, isExpiringSoon } from "@/lib/loyalty";
 import LoyaltyCard from "@/components/LoyaltyCard";
@@ -23,9 +24,12 @@ export default async function MembershipsPage() {
             Airline miles, hotel points, and other loyalty programs
           </p>
         </div>
-        <button className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white">
+        <Link
+          href="/memberships/add"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white"
+        >
           <Plus size={18} />
-        </button>
+        </Link>
       </div>
 
       {expiringCount > 0 && (

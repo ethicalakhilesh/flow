@@ -74,11 +74,14 @@ export default function AddCreditCardForm({ existingPrimaryCards }: { existingPr
           shares_credit_limit: isAddon ? sharesLimit : undefined,
         }),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to save. Please try again.");
+      }
       router.push("/accounts");
       router.refresh();
-    } catch {
-      setError("Something went wrong saving this card. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong saving this card. Please try again.");
     } finally {
       setSaving(false);
     }

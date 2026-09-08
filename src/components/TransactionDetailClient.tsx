@@ -52,11 +52,14 @@ export default function TransactionDetailClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ merchant, category_id: categoryId }),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to save. Please try again.");
+      }
       setEditing(false);
       router.refresh();
-    } catch {
-      setError("Couldn't save your changes. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't save your changes. Please try again.");
     } finally {
       setSaving(false);
     }

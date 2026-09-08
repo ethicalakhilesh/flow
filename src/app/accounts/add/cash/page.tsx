@@ -33,11 +33,14 @@ export default function AddCashAccountPage() {
           account_subtype: "Cash on Hand",
         }),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to save. Please try again.");
+      }
       router.push("/accounts");
       router.refresh();
-    } catch {
-      setError("Something went wrong saving this account. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong saving this account. Please try again.");
     } finally {
       setSaving(false);
     }

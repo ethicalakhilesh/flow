@@ -98,11 +98,14 @@ export default function AddTransactionForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Failed to save transaction");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to save. Please try again.");
+      }
       router.push("/transactions");
       router.refresh();
-    } catch {
-      setError("Something went wrong saving this transaction. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong saving this transaction. Please try again.");
     } finally {
       setSaving(false);
     }

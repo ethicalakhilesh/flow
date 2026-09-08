@@ -12,6 +12,7 @@ import {
   Store,
   TrendingUp,
   Gift,
+  Repeat,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,6 +30,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   store: Store,
   "trending-up": TrendingUp,
   gift: Gift,
+  repeat: Repeat,
 };
 
 export default function CategoryIcon({

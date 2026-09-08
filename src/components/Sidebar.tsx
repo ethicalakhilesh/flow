@@ -8,12 +8,14 @@ import {
   ArrowLeftRight,
   Wallet,
   Award,
+  PiggyBank,
   Settings,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { href: "/budget", label: "Budget", icon: PiggyBank },
   { href: "/accounts", label: "Accounts", icon: Wallet },
   { href: "/memberships", label: "Memberships", icon: Award },
 ];

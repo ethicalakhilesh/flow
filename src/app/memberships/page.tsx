@@ -1,12 +1,17 @@
+import Link from "next/link";
 import { Plus } from "lucide-react";
-import { getProgramsWithBalances, groupByCategory, CATEGORY_LABEL, isExpiringSoon } from "@/lib/loyalty";
+import { getLoyaltyPrograms, getLoyaltyTransactions, getProgramsWithBalances, groupByCategory, CATEGORY_LABEL, isExpiringSoon } from "@/lib/loyalty";
 import LoyaltyCard from "@/components/LoyaltyCard";
 import type { LoyaltyCategory } from "@/lib/types";
 
 const CATEGORY_ORDER: LoyaltyCategory[] = ["airline", "hotel", "other"];
 
-export default function MembershipsPage() {
-  const programs = getProgramsWithBalances();
+export default async function MembershipsPage() {
+  const [loyaltyPrograms, loyaltyTransactions] = await Promise.all([
+    getLoyaltyPrograms(),
+    getLoyaltyTransactions(),
+  ]);
+  const programs = getProgramsWithBalances(loyaltyPrograms, loyaltyTransactions);
   const grouped = groupByCategory(programs);
   const expiringCount = programs.filter((p) => isExpiringSoon(p.expiry_date)).length;
 
@@ -19,9 +24,12 @@ export default function MembershipsPage() {
             Airline miles, hotel points, and other loyalty programs
           </p>
         </div>
-        <button className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white">
+        <Link
+          href="/memberships/add"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white"
+        >
           <Plus size={18} />
-        </button>
+        </Link>
       </div>
 
       {expiringCount > 0 && (

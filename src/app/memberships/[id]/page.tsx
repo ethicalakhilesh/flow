@@ -1,28 +1,32 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, CreditCard, CalendarClock } from "lucide-react";
+import { ChevronLeft, CalendarClock } from "lucide-react";
 import {
+  getLoyaltyPrograms,
   getProgramById,
   programBalance,
   getLoyaltyTransactions,
   getTransactionsForProgram,
   formatExpiry,
-  formatPoints,
   isExpiringSoon,
 } from "@/lib/loyalty";
-import { getLoyaltyIconUrl, DEFAULT_LOYALTY_ICON_BY_CATEGORY } from "@/lib/loyaltyIcons";
-import BrandLogo from "@/components/BrandLogo";
+import MembershipCard from "@/components/MembershipCard";
 import LoyaltyTransactionRow from "@/components/LoyaltyTransactionRow";
 
-export default function MembershipDetailPage({ params }: { params: { id: string } }) {
-  const program = getProgramById(params.id);
+// Always render on demand for any id - never statically prerendered.
+export const dynamicParams = true;
+
+export default async function MembershipDetailPage({ params }: { params: { id: string } }) {
+  const [programs, allTransactions] = await Promise.all([
+    getLoyaltyPrograms(),
+    getLoyaltyTransactions(),
+  ]);
+  const program = getProgramById(params.id, programs);
   if (!program) notFound();
 
-  const allTransactions = getLoyaltyTransactions();
   const balance = programBalance(program, allTransactions);
-  const transactions = getTransactionsForProgram(program.id);
+  const transactions = getTransactionsForProgram(program.id, allTransactions);
 
-  const iconUrl = getLoyaltyIconUrl(program.brand, program.category);
   const expiryLabel = formatExpiry(program.expiry_date);
   const expiring = isExpiringSoon(program.expiry_date);
 
@@ -36,56 +40,28 @@ export default function MembershipDetailPage({ params }: { params: { id: string 
         Memberships
       </Link>
 
-      {/* Header */}
-      <div className="mb-4 flex items-center gap-3">
-        <BrandLogo
-          src={iconUrl}
-          fallbackSrc={DEFAULT_LOYALTY_ICON_BY_CATEGORY[program.category]}
-          size={48}
-        />
-        <div className="min-w-0">
-          <h1 className="truncate font-display text-xl font-bold text-ink">{program.brand}</h1>
-          <p className="truncate text-sm text-muted">
-            {program.program_name}
-            {program.tier ? ` · ${program.tier}` : ""}
-          </p>
-        </div>
-      </div>
+      <MembershipCard program={{ ...program, points_balance: balance }} />
 
-      {/* Balance card */}
-      <div className="mb-4 rounded-xl2 bg-brand p-5 text-white shadow-card">
-        <div className="text-sm text-white/80">Current Balance</div>
-        <div className="font-display text-3xl font-bold">
-          {formatPoints(balance)} <span className="text-lg font-semibold">{program.points_name}</span>
+      {(expiryLabel || program.notes) && (
+        <div className="mb-4 divide-y divide-border rounded-xl2 border border-border bg-surface shadow-card">
+          {expiryLabel && (
+            <div className="flex items-center gap-3 px-4 py-3">
+              <CalendarClock size={16} className="shrink-0 text-muted" />
+              <span className="text-sm text-muted">Expires</span>
+              <span
+                className={`ml-auto text-sm font-medium ${expiring ? "text-warn" : "text-ink"}`}
+              >
+                {expiryLabel}
+              </span>
+            </div>
+          )}
+          {program.notes && (
+            <div className="px-4 py-3">
+              <span className="text-sm text-muted">{program.notes}</span>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Details */}
-      <div className="mb-4 divide-y divide-border rounded-xl2 border border-border bg-surface shadow-card">
-        {program.member_id && (
-          <div className="flex items-center gap-3 px-4 py-3">
-            <CreditCard size={16} className="shrink-0 text-muted" />
-            <span className="text-sm text-muted">Member ID</span>
-            <span className="ml-auto text-sm font-medium text-ink">{program.member_id}</span>
-          </div>
-        )}
-        {expiryLabel && (
-          <div className="flex items-center gap-3 px-4 py-3">
-            <CalendarClock size={16} className="shrink-0 text-muted" />
-            <span className="text-sm text-muted">Expires</span>
-            <span
-              className={`ml-auto text-sm font-medium ${expiring ? "text-warn" : "text-ink"}`}
-            >
-              {expiryLabel}
-            </span>
-          </div>
-        )}
-        {program.notes && (
-          <div className="px-4 py-3">
-            <span className="text-sm text-muted">{program.notes}</span>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Transaction history */}
       <div className="rounded-xl2 border border-border bg-surface p-2 shadow-card">

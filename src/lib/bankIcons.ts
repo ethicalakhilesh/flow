@@ -11,12 +11,12 @@
  * Nothing else needs to change; AccountCard renders whatever URL comes back.
  */
 export const BANK_ICON_MAP: Record<string, string> = {
-  "hdfc bank": "https://media.licdn.com/dms/image/v2/C510BAQGqZH7vVbVzWw/company-logo_200_200/company-logo_200_200/0/1630606529683/hdfc_bank_logo?e=2147483647&v=beta&t=90HhckmNYVr4LfsVM05gmLQiMvDPLGuyInxmpWRrURo",
-  "hdfc": "https://media.licdn.com/dms/image/v2/C510BAQGqZH7vVbVzWw/company-logo_200_200/company-logo_200_200/0/1630606529683/hdfc_bank_logo?e=2147483647&v=beta&t=90HhckmNYVr4LfsVM05gmLQiMvDPLGuyInxmpWRrURo",
-  "icici bank": "https://www.icici.bank.in/favicon.ico",
-  "icici": "https://www.icici.bank.in/favicon.ico",
-  "axis bank": "https://www.axis.bank.in/favicon.ico",
-  "axis": "https://www.axis.bank.in/favicon.ico",
+  "hdfc bank": "/icons/banks/hdfc.svg",
+  "hdfc": "/icons/banks/hdfc.svg",
+  "icici bank": "/icons/banks/icici.svg",
+  "icici": "/icons/banks/icici.svg",
+  "axis bank": "/icons/banks/axis.svg",
+  "axis": "/icons/banks/axis.svg",
   "idfc bank": "/icons/banks/idfc-first.svg",
   "idfc first bank": "/icons/banks/idfc-first.svg",
   "idfc": "/icons/banks/idfc-first.svg",

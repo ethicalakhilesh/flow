@@ -12,11 +12,18 @@ import type { LoyaltyCategory } from "./types";
  *
  * To add a brand: either drop a file in public/icons/loyalty/ and point to
  * it, or paste a hosted URL — add one line below either way.
+ *
+ * Note: the 5 brands mapped below are placeholder monograms I generated
+ * myself (same reasoning as bankIcons.ts) — not the airlines'/hotels'
+ * actual logos. Swap in real ones you've sourced yourself when ready.
  */
 export const LOYALTY_ICON_MAP: Record<string, string> = {
-  // Add real brand logos here as you add memberships, e.g.:
-  // "british airways": "/icons/loyalty/british-airways.svg",
-  // "marriott": "https://cdn.example.com/marriott.png",
+  "vistara": "/icons/loyalty/vistara.svg",
+  "air india": "/icons/loyalty/air-india.svg",
+  "marriott": "/icons/loyalty/marriott.svg",
+  "ihg": "/icons/loyalty/ihg.svg",
+  // Same file as the bank icon mapping — it's the same brand either way.
+  "hdfc bank": "/icons/banks/hdfc.svg",
 };
 
 export const DEFAULT_LOYALTY_ICON_BY_CATEGORY: Record<LoyaltyCategory, string> = {

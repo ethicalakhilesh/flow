@@ -10,6 +10,7 @@ import {
   Award,
   PiggyBank,
   Settings,
+  LogOut,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -57,6 +58,14 @@ export default function Sidebar() {
         <Settings size={18} strokeWidth={2.25} />
         Settings
       </Link>
+
+      <a
+        href="/api/auth/logout"
+        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted transition-colors hover:bg-canvas hover:text-ink"
+      >
+        <LogOut size={18} strokeWidth={2.25} />
+        Log out
+      </a>
     </aside>
   );
 }

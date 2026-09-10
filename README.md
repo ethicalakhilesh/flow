@@ -22,6 +22,71 @@ Open http://localhost:3000 — it redirects to `/dashboard`.
 - **Budget**: per-category spending limits with day/week/month recurrence and effective-dated amendments (editing a recurring budget never rewrites its history — see the "Budget" section below)
 - **PWA**: installable via `public/manifest.json`, icon sourced entirely from `public/icons/icon.svg` — one file, referenced everywhere (manifest, favicon, apple touch icon, sidebar logo). Swap that single file to rebrand.
 
+## Authentication (sso-auth, steps 1–5 of Phase 4)
+
+Flow authenticates via **sso-auth**, a separate, already-deployed OIDC
+provider — not something built inside this repo. Flow is its first real
+client. Env vars needed: `SSO_ISSUER`, `SSO_CLIENT_ID`, `SSO_REDIRECT_URI`,
+and `FLOW_SESSION_SECRET` (see `.env.local.example`).
+
+**The flow:**
+1. `GET /api/auth/login` — generates a PKCE `code_verifier`/`code_challenge`
+   pair and a CSRF `state`, stores both in short-lived httpOnly cookies,
+   redirects to `${SSO_ISSUER}/authorize`. No client secret anywhere — PKCE
+   plus sso-auth's public JWKS replace that entirely for a public client
+   like Flow.
+2. `GET /api/auth/callback` — validates `state`, exchanges the returned
+   `code` for tokens at sso-auth's token endpoint, verifies the `id_token`
+   against sso-auth's JWKS (`src/lib/sso.ts`'s `getSsoJwks`, checking
+   `issuer`/`audience`), then sets **Flow's own session** — not sso-auth's
+   token — and clears the transient cookies.
+3. `src/middleware.ts` gates every route (pages *and* `/api/*`, except the
+   auth routes themselves and static assets) on that session cookie alone.
+   sso-auth is never contacted again after step 2 — this is the whole point
+   of Flow minting its own session rather than re-verifying the ID token on
+   every request.
+
+**Flow's own session** (`src/lib/session.ts`) is a signed HS256 JWT in an
+httpOnly `flow_session` cookie, 30-day lifetime — deliberately independent
+of and longer than sso-auth's 1-hour ID token, which has no refresh flow
+yet (that's sso-auth's own Phase 5, a different phase than this one).
+
+**Two deviations from the plan doc worth knowing about**, since I couldn't
+verify either against a running sso-auth instance:
+- Added `scope=openid` to the `/authorize` redirect — required by OIDC spec
+  for the response to include an ID token at all, but not listed in the
+  plan's parameter list. Remove if sso-auth's `/authorize` rejects an
+  unrecognized param.
+- API routes get a `401 {"error": "Not authenticated"}` when logged out,
+  not a redirect — a `fetch()` call that got redirected to sso-auth's
+  hosted login page would follow it, get HTML back, and fail confusingly on
+  `res.json()`. Pages still redirect normally.
+
+**Still ahead**: step 6 confirmed clean by grepping the codebase — no old auth
+remnants existed to remove (Flow had none before this), and every env var
+referenced in code is documented in `.env.local.example`. Step 7's checklist,
+verified as far as static code review allows:
+
+- [x] **Tampering with the session cookie is rejected** — verified by
+  construction: `verifySessionToken` wraps `jwtVerify` in a try/catch that
+  returns `null` on any failure, and jose's HMAC verification will reject
+  any single-byte change to a signed JWT. Not run against a live instance,
+  but this part needs no network call to test — it's pure JWT logic.
+- [x] **Refresh doesn't trigger another sso-auth round trip** — verified by
+  reading `middleware.ts`: the authenticated path only calls
+  `verifySessionToken` (local, no network), and never references
+  `SSO_ISSUER` or makes a `fetch()` call at all once a valid session exists.
+- [x] **Logout clears Flow's session without touching sso-auth** — now
+  built (`/api/auth/logout`, linked from the sidebar); deliberately makes
+  no call to sso-auth at all, consistent with Flow's session being
+  independent after login.
+- [ ] **The actual logged-out → sso-auth login form → back into Flow round
+  trip** — this is the one item I genuinely can't verify myself. It
+  depends on sso-auth's real `/authorize` and `/api/oidc/token` endpoints
+  behaving exactly as the integration plan describes, which I have no way
+  to confirm without a live deployment and real credentials. This needs
+  you to click through it after deploying.
+
 ## Roadmap
 
 What's done vs. what's still ahead, organized by area of a typical personal

@@ -33,3 +33,18 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/*
+ * iOS Safari auto-zooms the whole page when a focused input/select/textarea
+ * renders below 16px, regardless of the viewport meta's maximumScale. Several
+ * form fields across the app use Tailwind's text-sm (14px) inline, so this
+ * forces every one of them to 16px with !important - a plain element
+ * selector like this has lower specificity than any Tailwind text-size
+ * utility class, so without !important this rule would silently lose and
+ * do nothing.
+ */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}

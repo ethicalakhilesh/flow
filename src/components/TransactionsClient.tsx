@@ -60,7 +60,7 @@ function TransactionsPageInner({
   const isTruncated = isDefaultView && filtered.length > DEFAULT_VISIBLE_COUNT;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 md:px-8 md:py-8">
+    <div className="mx-auto w-full max-w-3xl overflow-x-hidden px-4 py-6 md:px-8 md:py-8">
       <div className="mb-1 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-ink">Transactions</h1>
         <Link

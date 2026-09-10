@@ -30,6 +30,9 @@ export const viewport: Viewport = {
   themeColor: "#0E7C6B",
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -42,7 +45,7 @@ export default function RootLayout({
       <body className={`${manrope.variable} ${inter.variable} font-body antialiased`}>
         <div className="min-h-screen md:flex">
           <Sidebar />
-          <main className="flex-1 pb-20 md:pb-0">{children}</main>
+          <main className="flex-1 pb-28 md:pb-0">{children}</main>
         </div>
         <BottomNav />
       </body>

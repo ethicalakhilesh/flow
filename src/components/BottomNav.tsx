@@ -18,20 +18,30 @@ export default function BottomNav() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur md:hidden">
-      <div className="mx-auto flex max-w-md items-center justify-between px-1.5 py-2">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`flex flex-1 flex-col items-center gap-0.5 px-1 py-1 text-[10px] font-medium ${
-              isActive(href) ? "text-brand" : "text-muted"
-            }`}
-          >
-            <Icon size={20} strokeWidth={2.25} />
-            {label}
-          </Link>
-        ))}
+    <nav
+      className="fixed inset-x-0 z-40 flex justify-center px-4 md:hidden"
+      // Floats above the home indicator / curved bottom corners rather than
+      // sitting flush against them - viewport-fit=cover in layout.tsx's
+      // viewport export is required for env(safe-area-inset-bottom) to
+      // resolve to anything but 0 here.
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 14px)" }}
+    >
+      <div className="flex w-full max-w-md items-center justify-between rounded-full border border-border bg-surface/95 px-2 py-1.5 shadow-card backdrop-blur">
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const active = isActive(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex flex-1 flex-col items-center gap-0.5 rounded-full px-1 py-1.5 text-[10px] font-medium transition-colors ${
+                active ? "bg-brand-light text-brand-dark" : "text-muted"
+              }`}
+            >
+              <Icon size={20} strokeWidth={2.25} />
+              {label}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );

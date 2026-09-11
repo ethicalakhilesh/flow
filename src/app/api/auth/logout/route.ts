@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE } from "@/lib/session";
 
+// Same reasoning as the login route: a cached logout response could serve
+// a stale redirect with no actual cookie-clearing Set-Cookie to a
+// different user. Must run fresh every time.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * Clears Flow's own session cookie and nothing else. Deliberately doesn't
  * call sso-auth at all - Flow's session is independent of sso-auth after

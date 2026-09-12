@@ -11,8 +11,10 @@ export const SSO_CODE_VERIFIER_COOKIE = "sso_code_verifier";
 export const SSO_STATE_COOKIE = "sso_state";
 
 // Just long enough to complete the redirect round trip to sso-auth's login
-// form and back - these cookies have no reason to outlive that.
-export const SSO_COOKIE_MAX_AGE_SECONDS = 600; // 10 minutes
+// form and back - these cookies have no reason to outlive that. Bumped
+// from an original 10 minutes for extra margin on a slow round trip
+// (e.g. someone taking a while on sso-auth's login form).
+export const SSO_COOKIE_MAX_AGE_SECONDS = 900; // 15 minutes
 
 export interface SsoConfig {
   issuer: string;

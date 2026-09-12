@@ -12,6 +12,14 @@ import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/
 const LOGIN_ROUTE = "/api/auth/login";
 const POST_LOGIN_REDIRECT = "/dashboard";
 
+// Explicit even though this route already reads request.cookies/nextUrl
+// (which forces dynamic rendering implicitly per Next.js's rules) - after
+// the login route's caching bug, "implicitly correct" isn't good enough
+// here. This route reads a one-time authorization code; it must never be
+// served from a cache.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * Every failure path here does the same thing: redirect back to login and
  * clear the transient cookies, rather than dead-ending the user on an

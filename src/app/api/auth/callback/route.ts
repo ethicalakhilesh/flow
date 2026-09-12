@@ -102,8 +102,9 @@ export async function GET(request: NextRequest) {
   let username: string | undefined;
   try {
     const jwks = getSsoJwks(issuer);
+    const acceptedIssuers = issuer.endsWith("/") ? [issuer, issuer.slice(0, -1)] : [issuer, `${issuer}/`];
     const { payload } = await jwtVerify(idToken, jwks, {
-      issuer,
+      issuer: acceptedIssuers,
       audience: clientId,
     });
     if (typeof payload.sub !== "string") {

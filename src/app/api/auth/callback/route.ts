@@ -102,7 +102,16 @@ export async function GET(request: NextRequest) {
   let username: string | undefined;
   try {
     const jwks = getSsoJwks(issuer);
-    const acceptedIssuers = issuer.endsWith("/") ? [issuer, issuer.slice(0, -1)] : [issuer, `${issuer}/`];
+    const issuerUrl = new URL(issuer);
+    const issuerWithoutSlash = issuer.endsWith("/") ? issuer.slice(0, -1) : issuer;
+    // The current provider metadata emits its issuer as a bare hostname.
+    // Keep accepting the standards-compliant URL forms too.
+    const acceptedIssuers = [
+      issuer,
+      issuerWithoutSlash,
+      `${issuerWithoutSlash}/`,
+      issuerUrl.host,
+    ];
     const { payload } = await jwtVerify(idToken, jwks, {
       issuer: acceptedIssuers,
       audience: clientId,

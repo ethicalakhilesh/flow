@@ -7,6 +7,20 @@ import {
   SSO_STATE_COOKIE,
 } from "@/lib/sso";
 
+// CRITICAL: this route generates a fresh secret (code_verifier) and a
+// fresh CSRF token (state) on every single request, and MUST run fresh
+// every time. Without these two lines, Next.js's default heuristic for App
+// Router Route Handlers treats a GET handler with no dynamic API usage
+// (no NextRequest param, no cookies()/headers() call) as STATIC and
+// CACHEABLE - meaning it can be built/cached once and then serve the same
+// baked-in code_verifier/state/Set-Cookie to every visitor thereafter, or
+// have its Set-Cookie header silently stripped by a CDN on a cache HIT.
+// This is exactly what produced the "missing state/code_verifier cookie"
+// failures in the callback route - confirmed by `/login` showing
+// `cache=HIT` in production logs.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const { issuer, clientId, redirectUri } = getSsoConfig();
 
@@ -38,6 +52,12 @@ export async function GET() {
   authorizeUrl.searchParams.set("state", state);
 
   const response = NextResponse.redirect(authorizeUrl.toString());
+
+  // Defense in depth on top of dynamic/revalidate above: explicitly tell
+  // any CDN/proxy sitting in front of this not to cache this response
+  // under any circumstances, so a misconfigured edge cache can't
+  // reintroduce this exact bug independently of Next.js's own behavior.
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
 
   const cookieOptions = ssoTransientCookieOptions();
   response.cookies.set(SSO_CODE_VERIFIER_COOKIE, codeVerifier, cookieOptions);

@@ -51,6 +51,20 @@ httpOnly `flow_session` cookie, 30-day lifetime — deliberately independent
 of and longer than sso-auth's 1-hour ID token, which has no refresh flow
 yet (that's sso-auth's own Phase 5, a different phase than this one).
 
+**Fixed bug**: `/api/auth/login` was getting cached (`cache=HIT` in production
+logs), silently serving the *same* baked-in `code_verifier`/`state`/`Set-Cookie`
+to every visitor instead of generating fresh ones per request — which is
+exactly what produced "missing state/code_verifier cookie" failures in the
+callback route. Root cause: a GET Route Handler with no dynamic API usage
+(no `NextRequest` param, no `cookies()`/`headers()` call) is treated by
+Next.js's App Router as static and cacheable by default. All three auth
+routes now explicitly export `dynamic = "force-dynamic"` and
+`revalidate = 0` — the login route also sets an explicit `Cache-Control:
+no-store` header as defense-in-depth against a misconfigured CDN/edge cache
+reintroducing the same bug independently of Next.js's own behavior. If you
+ever add another route that mints a per-request secret (a new OAuth-style
+flow, a one-time token, etc.), it needs the same two exports.
+
 **Two deviations from the plan doc worth knowing about**, since I couldn't
 verify either against a running sso-auth instance:
 - Added `scope=openid` to the `/authorize` redirect — required by OIDC spec

@@ -15,7 +15,7 @@ export const revalidate = 0;
  * endpoint later, this would be the place to also call it.
  */
 export async function GET(request: NextRequest) {
-  const response = NextResponse.redirect(new URL("/api/auth/login", request.url));
+  const response = NextResponse.redirect(new URL("/logged-out", request.url));
   response.cookies.delete(SESSION_COOKIE);
   return response;
 }

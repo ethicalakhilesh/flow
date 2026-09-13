@@ -19,17 +19,20 @@ import CategoryDonut from "@/components/CategoryDonut";
 import TransactionRow from "@/components/TransactionRow";
 import AccountCard from "@/components/AccountCard";
 import MonthSelector from "@/components/MonthSelector";
+import ProfileMenu from "@/components/ProfileMenu";
 
 export default function DashboardClient({
   transactions,
   accounts,
   categories,
   totalBalance,
+  username,
 }: {
   transactions: Transaction[];
   accounts: AccountWithBalance[];
   categories: Category[];
   totalBalance: number;
+  username?: string;
 }) {
   const months = useMemo(() => getAvailableMonths(transactions), [transactions]);
 
@@ -52,9 +55,16 @@ export default function DashboardClient({
     <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Dashboard</h1>
-          <p className="text-sm text-muted">Good morning, Arjun 👋</p>
+        <div className="flex items-center gap-3">
+          <div className="md:hidden">
+            <ProfileMenu username={username} />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-ink">Dashboard</h1>
+            <p className="text-sm text-muted">
+              {username ? `Good morning, ${username} 👋` : "Good morning 👋"}
+            </p>
+          </div>
         </div>
         <MonthSelector options={months} value={selectedKey} onChange={setSelectedKey} />
       </div>

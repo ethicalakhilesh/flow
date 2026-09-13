@@ -9,6 +9,7 @@ import {
 } from "@/lib/sso";
 import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/session";
 
+const LOGIN_ROUTE = "/api/auth/login";
 const POST_LOGIN_REDIRECT = "/dashboard";
 
 // Explicit even though this route already reads request.cookies/nextUrl
@@ -20,19 +21,15 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 /**
- * Callback failures must not redirect back into the login flow: doing that
- * turns a configuration or provider error into an infinite redirect loop.
- * Keep the detailed reason in server logs and return a bounded response to
- * the browser instead.
+ * Every failure path here does the same thing: redirect back to login and
+ * clear the transient cookies, rather than dead-ending the user on an
+ * error page. `reason` is server-side console output only, never shown to
+ * the user or leaked into the redirect URL.
  */
 function redirectToLogin(request: NextRequest, reason: string) {
   // eslint-disable-next-line no-console
   console.error(`sso-auth callback failed: ${reason}`);
-  const response = NextResponse.json(
-    { error: "SSO login failed", message: "The authentication callback could not be completed." },
-    { status: 400 },
-  );
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  const response = NextResponse.redirect(new URL(LOGIN_ROUTE, request.url));
   response.cookies.delete(SSO_CODE_VERIFIER_COOKIE);
   response.cookies.delete(SSO_STATE_COOKIE);
   return response;
@@ -102,18 +99,8 @@ export async function GET(request: NextRequest) {
   let username: string | undefined;
   try {
     const jwks = getSsoJwks(issuer);
-    const issuerUrl = new URL(issuer);
-    const issuerWithoutSlash = issuer.endsWith("/") ? issuer.slice(0, -1) : issuer;
-    // The current provider metadata emits its issuer as a bare hostname.
-    // Keep accepting the standards-compliant URL forms too.
-    const acceptedIssuers = [
-      issuer,
-      issuerWithoutSlash,
-      `${issuerWithoutSlash}/`,
-      issuerUrl.host,
-    ];
     const { payload } = await jwtVerify(idToken, jwks, {
-      issuer: acceptedIssuers,
+      issuer,
       audience: clientId,
     });
     if (typeof payload.sub !== "string") {

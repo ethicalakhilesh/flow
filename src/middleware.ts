@@ -6,7 +6,14 @@ import { verifySessionToken, SESSION_COOKIE } from "@/lib/session";
  * itself (can't require a session to go log in), plus static assets the
  * browser may probe independently of any rendered page.
  */
-const PUBLIC_PATHS = ["/api/auth/login", "/api/auth/callback", "/api/auth/logout", "/manifest.json", "/icons"];
+const PUBLIC_PATHS = [
+  "/logged-out",
+  "/api/auth/login",
+  "/api/auth/callback",
+  "/api/auth/logout",
+  "/manifest.json",
+  "/icons",
+];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
@@ -31,7 +38,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/api/auth/login", request.url));
+    return NextResponse.redirect(new URL("/logged-out", request.url));
   }
 
   // Forward the verified identity to Server Components via request headers

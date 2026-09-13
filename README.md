@@ -65,6 +65,20 @@ reintroducing the same bug independently of Next.js's own behavior. If you
 ever add another route that mints a per-request secret (a new OAuth-style
 flow, a one-time token, etc.), it needs the same two exports.
 
+**Logged-out UX**: unauthenticated page visits (via middleware) and
+`/api/auth/logout` both land on `/logged-out` — a real page with a "Log In"
+button — rather than bouncing straight into sso-auth with no stop in
+between. That matters most right after logging out: redirecting straight
+back to `/api/auth/login` would immediately restart the OIDC flow, making
+"log out" look like it didn't do anything.
+
+**Mobile profile menu**: `ProfileMenu.tsx`, top-left on the Dashboard
+(mobile only — desktop already has Settings/Log out via the sidebar).
+Circular avatar showing the first letter of the username pulled from
+`x-flow-user-username` — the header middleware forwards but nothing read
+until now. Dropdown has Settings (placeholder page, also fixes what was
+previously a dead link in the sidebar) and Log out.
+
 **Two deviations from the plan doc worth knowing about**, since I couldn't
 verify either against a running sso-auth instance:
 - Added `scope=openid` to the `/authorize` redirect — required by OIDC spec

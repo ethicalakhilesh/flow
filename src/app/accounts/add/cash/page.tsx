@@ -60,6 +60,7 @@ export default function AddCashAccountPage() {
           <label className={labelClass}>Nickname</label>
           <input
             type="text"
+            autoComplete="off"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="e.g. Cash, Wallet"

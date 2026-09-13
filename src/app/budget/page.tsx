@@ -24,6 +24,7 @@ export default async function BudgetPage() {
         </div>
         <Link
           href="/budget/add"
+          aria-label="Add budget"
           className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white"
         >
           <Plus size={18} />

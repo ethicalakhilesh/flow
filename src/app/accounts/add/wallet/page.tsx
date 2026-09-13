@@ -60,6 +60,7 @@ export default function AddWalletPage() {
           <label className={labelClass}>Wallet Name</label>
           <input
             type="text"
+            autoComplete="off"
             value={provider}
             onChange={(e) => setProvider(e.target.value)}
             placeholder="e.g. PhonePe, Paytm, Google Pay"

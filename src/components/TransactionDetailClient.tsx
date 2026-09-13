@@ -150,7 +150,7 @@ export default function TransactionDetailClient({
         </div>
 
         <div className="divide-y divide-border">
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
             <span className="text-sm text-muted">Merchant Name / Ref</span>
             {editing ? (
               <input
@@ -158,6 +158,7 @@ export default function TransactionDetailClient({
                 value={merchant}
                 onChange={(e) => setMerchant(e.target.value)}
                 placeholder="Merchant name"
+                autoComplete="off"
                 className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink placeholder:text-muted placeholder:font-normal focus:outline-none"
               />
             ) : (
@@ -167,7 +168,7 @@ export default function TransactionDetailClient({
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
             <span className="text-sm text-muted">Category</span>
             {editing ? (
               <select
@@ -203,11 +204,11 @@ export default function TransactionDetailClient({
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl2 bg-brand py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
               <Check size={15} />
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving…" : "Save"}
             </button>
           </div>
         )}
-        {error && <p className="px-4 pb-3 text-xs text-expense">{error}</p>}
+        {error && <p role="alert" aria-live="polite" className="px-4 pb-3 text-xs text-expense">{error}</p>}
       </div>
 
       {/* Raw data - untouched original record */}

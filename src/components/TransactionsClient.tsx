@@ -77,12 +77,13 @@ function TransactionsPageInner({
       {!filteredAccountName && <div className="mb-4" />}
 
       <div className="mb-4 flex items-center gap-2">
-        <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
+        <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 focus-within:ring-1 focus-within:ring-brand">
           <Search size={16} className="text-muted" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search transactions"
+            autoComplete="off"
             className="w-full bg-transparent text-sm text-ink placeholder:text-muted focus:outline-none"
           />
         </div>

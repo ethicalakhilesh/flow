@@ -182,14 +182,14 @@ export default function AddBudgetForm({ availableCategories }: { availableCatego
         />
       </div>
 
-      {error && <p className="mb-3 text-sm text-expense">{error}</p>}
+      {error && <p role="alert" aria-live="polite" className="mb-3 text-sm text-expense">{error}</p>}
 
       <button
         onClick={handleSave}
         disabled={saving}
         className="w-full rounded-xl2 bg-brand py-3.5 text-sm font-semibold text-white shadow-card disabled:opacity-60"
       >
-        {saving ? "Saving..." : "Save Budget"}
+        {saving ? "Saving…" : "Save Budget"}
       </button>
     </div>
   );

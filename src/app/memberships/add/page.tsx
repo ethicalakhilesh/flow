@@ -81,6 +81,7 @@ export default function AddMembershipPage() {
           <label className={labelClass}>Brand</label>
           <input
             type="text"
+            autoComplete="off"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
             placeholder="e.g. Marriott"
@@ -92,6 +93,7 @@ export default function AddMembershipPage() {
           <label className={labelClass}>Program Name</label>
           <input
             type="text"
+            autoComplete="off"
             value={programName}
             onChange={(e) => setProgramName(e.target.value)}
             placeholder="e.g. Marriott Bonvoy"
@@ -103,6 +105,7 @@ export default function AddMembershipPage() {
           <label className={labelClass}>Points Name</label>
           <input
             type="text"
+            autoComplete="off"
             value={pointsName}
             onChange={(e) => setPointsName(e.target.value)}
             placeholder="e.g. Bonvoy Points, Avios, SuperCoins"
@@ -131,6 +134,7 @@ export default function AddMembershipPage() {
           <label className={labelClass}>Member ID (Optional)</label>
           <input
             type="text"
+            autoComplete="off"
             value={memberId}
             onChange={(e) => setMemberId(e.target.value)}
             placeholder="e.g. MB4455667"
@@ -153,6 +157,7 @@ export default function AddMembershipPage() {
           <label className={labelClass}>Tier (Optional)</label>
           <input
             type="text"
+            autoComplete="off"
             value={tier}
             onChange={(e) => setTier(e.target.value)}
             placeholder="e.g. Gold Elite"

@@ -113,17 +113,17 @@ export default function TransactionFilterSheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
-      <div className="absolute inset-0 bg-ink/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-ink/40" onClick={onClose} aria-hidden="true" />
 
       <div className="relative flex max-h-[85vh] w-full max-w-md flex-col rounded-t-xl2 bg-surface shadow-card md:rounded-xl2">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <h2 className="font-display text-base font-bold text-ink">Filters</h2>
-          <button onClick={onClose} className="rounded-full p-1 text-muted hover:bg-canvas">
+          <button onClick={onClose} aria-label="Close filters" className="rounded-full p-1 text-muted hover:bg-canvas">
             <X size={18} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4">
           <Section title="Type">
             <SegmentedControl<TypeFilter>
               value={filters.type}

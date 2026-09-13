@@ -26,6 +26,7 @@ export default async function MembershipsPage() {
         </div>
         <Link
           href="/memberships/add"
+          aria-label="Add membership"
           className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white"
         >
           <Plus size={18} />

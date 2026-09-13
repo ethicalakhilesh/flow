@@ -162,7 +162,7 @@ export default function AddTransactionForm({
       <div className="mb-5 divide-y divide-border rounded-xl2 border border-border bg-surface shadow-card">
         {isTransfer ? (
           <>
-            <label className="flex items-center justify-between gap-3 px-4 py-3">
+            <label className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
               <span className="text-sm text-muted">From Account</span>
               <select
                 value={fromAccountId}
@@ -178,7 +178,7 @@ export default function AddTransactionForm({
               <ChevronRight size={16} className="shrink-0 text-muted" />
             </label>
 
-            <label className="flex items-center justify-between gap-3 px-4 py-3">
+            <label className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
               <span className="text-sm text-muted">To Account</span>
               <select
                 value={toAccountId}
@@ -196,7 +196,7 @@ export default function AddTransactionForm({
           </>
         ) : (
           <>
-            <label className="flex items-center justify-between gap-3 px-4 py-3">
+            <label className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
               <span className="text-sm text-muted">Category</span>
               <select
                 value={categoryId}
@@ -215,7 +215,7 @@ export default function AddTransactionForm({
               <ChevronRight size={16} className="shrink-0 text-muted" />
             </label>
 
-            <label className="flex items-center justify-between gap-3 px-4 py-3">
+            <label className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
               <span className="text-sm text-muted">Account</span>
               <select
                 value={accountId}
@@ -233,7 +233,7 @@ export default function AddTransactionForm({
           </>
         )}
 
-        <label className="flex items-center justify-between gap-3 px-4 py-3">
+        <label className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
           <span className="text-sm text-muted">Date</span>
           <input
             type="date"
@@ -244,25 +244,27 @@ export default function AddTransactionForm({
         </label>
 
         {!isTransfer && (
-          <label className="flex items-center justify-between gap-3 px-4 py-3">
+          <label className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
             <span className="text-sm text-muted">Merchant</span>
             <input
               type="text"
               value={merchant}
               onChange={(e) => setMerchant(e.target.value)}
               placeholder="e.g. Starbucks (optional)"
+              autoComplete="off"
               className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink placeholder:text-muted placeholder:font-normal focus:outline-none"
             />
           </label>
         )}
 
-        <label className="flex items-center justify-between gap-3 px-4 py-3">
+        <label className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 focus-within:bg-canvas">
           <span className="text-sm text-muted">Note</span>
           <input
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder={isTransfer ? "e.g. ATM withdrawal (optional)" : "Add a note (optional)"}
+            autoComplete="off"
             className="flex-1 truncate bg-transparent text-right text-sm font-medium text-ink placeholder:text-muted placeholder:font-normal focus:outline-none"
           />
         </label>
@@ -281,14 +283,14 @@ export default function AddTransactionForm({
         ))}
       </div>
 
-      {error && <p className="mb-3 text-sm text-expense">{error}</p>}
+      {error && <p role="alert" aria-live="polite" className="mb-3 text-sm text-expense">{error}</p>}
 
       <button
         onClick={handleSave}
         disabled={saving}
         className="w-full rounded-xl2 bg-brand py-3.5 text-sm font-semibold text-white shadow-card disabled:opacity-60"
       >
-        {saving ? "Saving..." : isTransfer ? "Save Transfer" : "Save Transaction"}
+        {saving ? "Saving…" : isTransfer ? "Save Transfer" : "Save Transaction"}
       </button>
 
       {!isTransfer && selectedCategory && selectedAccount && (

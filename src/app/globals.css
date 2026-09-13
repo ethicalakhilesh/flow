@@ -11,10 +11,16 @@ html,
 body {
   background-color: #f5f7f6;
   color: #0f1a1c;
+  /* Every number in a finance app benefits from fixed-width digits (amounts,
+     dates, percentages all align in columns) - applying this once at the
+     body level covers every formatCurrency()/formatPoints() call site
+     without needing tabular-nums added to 16+ individual components. */
+  font-variant-numeric: tabular-nums;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 ::-webkit-scrollbar {

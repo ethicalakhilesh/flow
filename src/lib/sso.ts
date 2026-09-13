@@ -23,16 +23,14 @@ export interface SsoConfig {
 }
 
 export function getSsoConfig(): SsoConfig {
-  const rawIssuer = process.env.SSO_ISSUER;
+  const issuer = process.env.SSO_ISSUER;
   const clientId = process.env.SSO_CLIENT_ID;
   const redirectUri = process.env.SSO_REDIRECT_URI;
-  if (!rawIssuer || !clientId || !redirectUri) {
+  if (!issuer || !clientId || !redirectUri) {
     throw new Error(
       "Missing SSO_ISSUER, SSO_CLIENT_ID, or SSO_REDIRECT_URI. Copy .env.local.example to .env.local and fill in real values."
     );
   }
-
-  const issuer = rawIssuer.replace(/\/+$/, "");
   return { issuer, clientId, redirectUri };
 }
 

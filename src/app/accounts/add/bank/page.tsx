@@ -105,6 +105,7 @@ export default function AddBankAccountPage() {
           <label className={labelClass}>Account Nickname (Optional)</label>
           <input
             type="text"
+            autoComplete="off"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="e.g. Primary Savings"
@@ -116,6 +117,7 @@ export default function AddBankAccountPage() {
           <label className={labelClass}>Account Number (Last 4 Digits)</label>
           <input
             type="text"
+            autoComplete="off"
             inputMode="numeric"
             maxLength={4}
             value={lastFour}

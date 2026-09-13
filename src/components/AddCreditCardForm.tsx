@@ -113,6 +113,7 @@ export default function AddCreditCardForm({ existingPrimaryCards }: { existingPr
           <label className={labelClass}>Card Name</label>
           <input
             type="text"
+            autoComplete="off"
             value={cardName}
             onChange={(e) => setCardName(e.target.value)}
             placeholder="e.g. HDFC Regalia"
@@ -124,6 +125,7 @@ export default function AddCreditCardForm({ existingPrimaryCards }: { existingPr
           <label className={labelClass}>Last 4 Digits</label>
           <input
             type="text"
+            autoComplete="off"
             inputMode="numeric"
             maxLength={4}
             value={lastFour}
@@ -238,14 +240,14 @@ export default function AddCreditCardForm({ existingPrimaryCards }: { existingPr
         <Toggle checked={paymentReminder} onChange={setPaymentReminder} label="Set payment reminder" />
       </div>
 
-      {error && <p className="mb-3 text-sm text-expense">{error}</p>}
+      {error && <p role="alert" aria-live="polite" className="mb-3 text-sm text-expense">{error}</p>}
 
       <button
         onClick={handleSave}
         disabled={saving}
         className="w-full rounded-xl2 bg-brand py-3.5 text-sm font-semibold text-white shadow-card disabled:opacity-60"
       >
-        {saving ? "Saving..." : "Save Card"}
+        {saving ? "Saving…" : "Save Card"}
       </button>
     </div>
   );

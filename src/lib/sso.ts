@@ -30,6 +30,10 @@ export function getTransientCookieOptions() {
   };
 }
 
+export function ssoTransientCookieOptions() {
+  return getTransientCookieOptions();
+}
+
 export function clearSsoCookies(response: NextResponse) {
   response.cookies.delete(SSO_STATE_COOKIE);
   response.cookies.delete(SSO_CODE_VERIFIER_COOKIE);

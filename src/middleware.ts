@@ -36,9 +36,17 @@ export async function middleware(request: NextRequest) {
     // res.json() - a clean 401 lets calling code detect "logged out" and
     // react properly instead.
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      const res = NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+      return res;
     }
-    return NextResponse.redirect(new URL("/logged-out", request.url));
+    const res = NextResponse.redirect(new URL("/logged-out", request.url));
+    // Same defense-in-depth as the auth routes' explicit Cache-Control -
+    // middleware's own redirects never had this before. A cached redirect
+    // response served to the wrong session/user at the edge is one more
+    // way to end up in a loop that a single file's code can't explain.
+    res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    return res;
   }
 
   // Forward the verified identity to Server Components via request headers

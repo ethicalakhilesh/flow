@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { ChevronLeft, Settings } from "lucide-react";
 
+// Same reasoning as /logged-out - no dynamic API usage here either, so
+// without this it's just as static-cacheable by default.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-6 md:px-8 md:py-8">

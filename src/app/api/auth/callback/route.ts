@@ -17,7 +17,9 @@ export async function GET(req: NextRequest) {
   const state = url.searchParams.get("state");
   const error = url.searchParams.get("error");
 
-  const response = NextResponse.redirect(new URL("/logged-out", req.url));
+  const response = NextResponse.redirect(
+    new URL("/logged-out", req.url)
+  );
 
   response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
   response.headers.set("Pragma", "no-cache");
@@ -33,32 +35,36 @@ export async function GET(req: NextRequest) {
     return response;
   }
 
-  const cookies = req.cookies;
-  const expectedState = cookies.get(SSO_STATE_COOKIE)?.value;
-  const codeVerifier = cookies.get(SSO_CODE_VERIFIER_COOKIE)?.value;
+  const expectedState = req.cookies.get(SSO_STATE_COOKIE)?.value;
+  const codeVerifier = req.cookies.get(SSO_CODE_VERIFIER_COOKIE)?.value;
 
   if (!expectedState || !codeVerifier || state !== expectedState) {
-    console.error("sso-auth callback state/code_verifier validation failed");
+    console.error(
+      "sso-auth callback state/code_verifier validation failed"
+    );
     return response;
   }
 
   const config = getSsoConfig();
 
   try {
-    const tokenResponse = await fetch(`${config.issuer}/api/oidc/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: config.redirectUri,
-        client_id: config.clientId,
-        code_verifier: codeVerifier,
-      }),
-      cache: "no-store",
-    });
+    const tokenResponse = await fetch(
+      `${config.issuer}/api/oidc/token`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: config.redirectUri,
+          client_id: config.clientId,
+          code_verifier: codeVerifier,
+        }),
+        cache: "no-store",
+      }
+    );
 
     if (!tokenResponse.ok) {
       console.error(

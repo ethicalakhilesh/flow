@@ -5,13 +5,15 @@ export const SSO_STATE_COOKIE = "sso_state";
 export const SSO_CODE_VERIFIER_COOKIE = "sso_code_verifier";
 
 export function getSsoConfig() {
-  const issuer = process.env.SSO_ISSUER?.replace(/\/+$/, "");
+  const rawIssuer = process.env.SSO_ISSUER;
   const clientId = process.env.SSO_CLIENT_ID;
   const redirectUri = process.env.SSO_REDIRECT_URI;
 
-  if (!issuer || !clientId || !redirectUri) {
+  if (!rawIssuer || !clientId || !redirectUri) {
     throw new Error("Missing SSO configuration");
   }
+
+  const issuer = rawIssuer.replace(/\/+$/, "");
 
   return {
     issuer,

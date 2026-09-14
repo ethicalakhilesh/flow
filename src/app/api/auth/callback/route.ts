@@ -124,5 +124,3 @@ export async function GET(req: NextRequest) {
     return response;
   }
 }
-
-Important: I would not deploy this exact version yet without checking the actual "iss" claim emitted by "sso-auth". The log tells us the verifier expected one issuer and the ID token contained another. The safest fix is to correct the issuer configuration/token issuer, rather than weaken "jwtVerify()" by removing the issuer check.

@@ -41,7 +41,7 @@ export default function AccountCard({ account }: { account: AccountWithBalance }
         </div>
       </div>
       <div
-        className={`shrink-0 text-sm font-semibold ${
+        className={`shrink-0 font-display text-base font-bold ${
           isLiability ? "text-expense" : "text-ink"
         }`}
       >

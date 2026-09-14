@@ -28,7 +28,7 @@ export default function LoyaltyCard({ program }: { program: LoyaltyProgramWithBa
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <div className="text-sm font-semibold text-ink">{formatPoints(program.points_balance)}</div>
+        <div className="font-display text-base font-bold text-ink">{formatPoints(program.points_balance)}</div>
         <div className="text-xs text-muted">{program.points_name}</div>
       </div>
       {expiryLabel && (

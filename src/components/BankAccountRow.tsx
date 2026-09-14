@@ -33,7 +33,7 @@ export default function BankAccountRow({
           </div>
         </div>
         <div className="shrink-0 text-right">
-          <div className="text-sm font-semibold text-ink">{formatCurrency(account.current_balance)}</div>
+          <div className="font-display text-base font-bold text-ink">{formatCurrency(account.current_balance)}</div>
         </div>
         <ChevronRight size={16} className="shrink-0 text-muted" />
       </div>

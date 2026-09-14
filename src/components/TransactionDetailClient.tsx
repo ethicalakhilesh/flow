@@ -91,7 +91,7 @@ export default function TransactionDetailClient({
           </h1>
           <p className="text-sm text-muted">{category?.name}</p>
         </div>
-        <div className={`shrink-0 text-lg font-bold ${isTransfer ? "text-ink" : isIncome ? "text-income" : "text-ink"}`}>
+        <div className={`shrink-0 font-display text-xl font-bold ${isTransfer ? "text-ink" : isIncome ? "text-income" : "text-ink"}`}>
           {isTransfer ? (transaction.transfer_direction === "in" ? "+" : "−") : isIncome ? "+" : "−"}
           {formatCurrency(transaction.amount)}
         </div>

@@ -105,13 +105,13 @@ function TransactionsPageInner({
         </button>
       </div>
 
-      <div className="rounded-xl2 border border-border bg-surface p-2 shadow-card">
+      <div className="border-t border-border">
         {filtered.length === 0 && (
           <p className="px-3 py-6 text-center text-sm text-muted">
             No transactions match the current filters.
           </p>
         )}
-        <div className="divide-y divide-border px-2">
+        <div className="divide-y divide-border">
           {visible.map((t) => (
             <TransactionRow key={t.id} transaction={t} categories={categories} accounts={accounts} />
           ))}

@@ -22,7 +22,7 @@ export default function LoyaltyTransactionRow({ transaction }: { transaction: Lo
           {style.label} · {formatShortDate(transaction.date)}
         </div>
       </div>
-      <div className={`shrink-0 text-sm font-semibold ${style.className}`}>
+      <div className={`shrink-0 font-display text-base font-bold ${style.className}`}>
         {style.sign}
         {formatPoints(transaction.points)}
       </div>

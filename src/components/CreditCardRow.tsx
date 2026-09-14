@@ -61,7 +61,7 @@ export default function CreditCardRow({
           )}
         </div>
         <div className="shrink-0 text-right">
-          <div className="text-sm font-semibold text-ink">{formatCurrency(outstanding)}</div>
+          <div className="font-display text-base font-bold text-ink">{formatCurrency(outstanding)}</div>
           {effectiveLimit !== undefined && (
             <div className="text-xs text-muted">of {formatCurrency(effectiveLimit)}</div>
           )}

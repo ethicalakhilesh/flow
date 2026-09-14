@@ -20,10 +20,7 @@ export default function BudgetCard({ item }: { item: BudgetWithStatus }) {
   const style = STATUS_STYLE[item.status];
 
   return (
-    <Link
-      href={`/budget/${item.budget.id}`}
-      className="block rounded-xl2 border border-border bg-surface p-4 shadow-card"
-    >
+    <Link href={`/budget/${item.budget.id}`} className="block px-1 py-4">
       <div className="mb-3 flex items-center gap-3">
         <CategoryIcon icon={item.category.icon} color={item.category.color} />
         <div className="min-w-0 flex-1">
@@ -33,8 +30,9 @@ export default function BudgetCard({ item }: { item: BudgetWithStatus }) {
           </div>
         </div>
         <div className="shrink-0 text-right">
-          <div className="text-sm font-semibold text-ink">
-            {formatCurrency(item.spent)} <span className="font-normal text-muted">of {formatCurrency(item.version.amount)}</span>
+          <div className="font-display text-base font-bold text-ink">
+            {formatCurrency(item.spent)}{" "}
+            <span className="text-sm font-normal text-muted">of {formatCurrency(item.version.amount)}</span>
           </div>
           <div className={`text-xs font-medium ${style.text}`}>{STATUS_LABEL[item.status]}</div>
         </div>

@@ -45,7 +45,7 @@ export default async function BudgetPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="divide-y divide-border border-t border-border">
           {items.map((item) => (
             <BudgetCard key={item.budget.id} item={item} />
           ))}

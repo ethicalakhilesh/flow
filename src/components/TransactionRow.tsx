@@ -38,7 +38,7 @@ export default function TransactionRow({
         <div className="truncate text-xs text-muted">{subtitle}</div>
       </div>
       <div
-        className={`shrink-0 text-sm font-semibold ${
+        className={`shrink-0 font-display text-base font-bold ${
           isTransfer ? "text-ink" : isIncome ? "text-income" : "text-ink"
         }`}
       >

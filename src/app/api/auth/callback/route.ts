@@ -1,132 +1,124 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify, createRemoteJWKSet } from "jose";
+import { jwtVerify } from "jose";
 import {
   getSsoConfig,
-  getTransientCookieOptions,
-  SESSION_COOKIE,
+  getSsoJwks,
+  ssoTransientCookieOptions,
   SSO_CODE_VERIFIER_COOKIE,
   SSO_STATE_COOKIE,
 } from "@/lib/sso";
+import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/session";
 
+const LOGIN_ROUTE = "/api/auth/login";
+const POST_LOGIN_REDIRECT = "/dashboard";
+
+// Explicit even though this route already reads request.cookies/nextUrl
+// (which forces dynamic rendering implicitly per Next.js's rules) - after
+// the login route's caching bug, "implicitly correct" isn't good enough
+// here. This route reads a one-time authorization code; it must never be
+// served from a cache.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
-  const error = url.searchParams.get("error");
+/**
+ * Every failure path here does the same thing: redirect back to login and
+ * clear the transient cookies, rather than dead-ending the user on an
+ * error page. `reason` is server-side console output only, never shown to
+ * the user or leaked into the redirect URL.
+ */
+function redirectToLogin(request: NextRequest, reason: string) {
+  // eslint-disable-next-line no-console
+  console.error(`sso-auth callback failed: ${reason}`);
+  const response = NextResponse.redirect(new URL(LOGIN_ROUTE, request.url));
+  response.cookies.delete(SSO_CODE_VERIFIER_COOKIE);
+  response.cookies.delete(SSO_STATE_COOKIE);
+  return response;
+}
 
-  const response = NextResponse.redirect(
-    new URL("/logged-out", req.url)
-  );
+export async function GET(request: NextRequest) {
+  const { issuer, clientId, redirectUri } = getSsoConfig();
+  const params = request.nextUrl.searchParams;
 
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
-
-  if (error) {
-    console.error("sso-auth callback returned error:", error);
-    return response;
+  // sso-auth can redirect back with an error instead of a code (e.g. the
+  // user denied consent, or some other failure at its login form).
+  const ssoError = params.get("error");
+  if (ssoError) {
+    return redirectToLogin(request, `sso-auth returned error: ${ssoError}`);
   }
 
-  if (!code || !state) {
-    console.error("sso-auth callback missing code/state");
-    return response;
+  const code = params.get("code");
+  const returnedState = params.get("state");
+  if (!code || !returnedState) {
+    return redirectToLogin(request, "missing code or state in callback query string");
   }
 
-  const expectedState = req.cookies.get(SSO_STATE_COOKIE)?.value;
-  const codeVerifier = req.cookies.get(SSO_CODE_VERIFIER_COOKIE)?.value;
-
-  if (!expectedState || !codeVerifier || state !== expectedState) {
-    console.error(
-      "sso-auth callback state/code_verifier validation failed"
-    );
-    return response;
+  const expectedState = request.cookies.get(SSO_STATE_COOKIE)?.value;
+  const codeVerifier = request.cookies.get(SSO_CODE_VERIFIER_COOKIE)?.value;
+  if (!expectedState || !codeVerifier) {
+    return redirectToLogin(request, "missing state/code_verifier cookie - login attempt may have expired");
+  }
+  // CSRF check - this is the entire reason `state` exists.
+  if (returnedState !== expectedState) {
+    return redirectToLogin(request, "state mismatch (possible CSRF)");
   }
 
-  const config = getSsoConfig();
-
+  // Exchange the code for tokens. code_verifier proves this request came
+  // from the same client that started the flow in /api/auth/login -
+  // that's what replaces a shared client secret here.
+  let tokenResponse: Response;
   try {
-    const tokenResponse = await fetch(
-      `${config.issuer}/api/oidc/token`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: config.redirectUri,
-          client_id: config.clientId,
-          code_verifier: codeVerifier,
-        }),
-        cache: "no-store",
-      }
-    );
-
-    if (!tokenResponse.ok) {
-      console.error(
-        "sso-auth token exchange failed:",
-        tokenResponse.status,
-        await tokenResponse.text()
-      );
-      return response;
-    }
-
-    const tokens = await tokenResponse.json();
-    const idToken = tokens.id_token;
-
-    if (!idToken) {
-      console.error("sso-auth token response missing id_token");
-      return response;
-    }
-
-    const jwks = createRemoteJWKSet(
-      new URL(`${config.issuer}/.well-known/jwks.json`)
-    );
-
-    const { payload } = await jwtVerify(idToken, jwks, {
-      issuer: config.issuer,
-      audience: config.clientId,
-    });
-
-    const sessionResponse = NextResponse.redirect(
-      new URL("/dashboard", req.url)
-    );
-
-    sessionResponse.headers.set(
-      "Cache-Control",
-      "no-store, no-cache, must-revalidate"
-    );
-    sessionResponse.headers.set("Pragma", "no-cache");
-    sessionResponse.headers.set("Expires", "0");
-
-    sessionResponse.cookies.set(
-      SESSION_COOKIE,
-      JSON.stringify({
-        sub: payload.sub,
-        email: payload.email,
-        name: payload.name,
+    tokenResponse = await fetch(new URL("/api/oidc/token", issuer), {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: redirectUri,
+        client_id: clientId,
+        code_verifier: codeVerifier,
       }),
-      {
-        ...getTransientCookieOptions(),
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 7,
-      }
-    );
-
-    sessionResponse.cookies.delete(SSO_STATE_COOKIE);
-    sessionResponse.cookies.delete(SSO_CODE_VERIFIER_COOKIE);
-
-    return sessionResponse;
+    });
   } catch (err) {
-    console.error(
-      "sso-auth callback failed:",
-      err instanceof Error ? err.message : err
-    );
-
-    return response;
+    return redirectToLogin(request, `token request failed: ${err instanceof Error ? err.message : String(err)}`);
   }
+
+  if (!tokenResponse.ok) {
+    const body = await tokenResponse.text().catch(() => "");
+    // invalid_grant (expired/reused code, verifier mismatch) and any other
+    // token-endpoint error both mean the same thing from here: start over.
+    return redirectToLogin(request, `token endpoint returned ${tokenResponse.status}: ${body}`);
+  }
+
+  const tokenData = await tokenResponse.json();
+  const idToken: unknown = tokenData.id_token;
+  if (typeof idToken !== "string") {
+    return redirectToLogin(request, "token response had no id_token");
+  }
+
+  let sub: string;
+  let username: string | undefined;
+  try {
+    const jwks = getSsoJwks(issuer);
+    const { payload } = await jwtVerify(idToken, jwks, {
+      issuer,
+      audience: clientId,
+    });
+    if (typeof payload.sub !== "string") {
+      return redirectToLogin(request, "id_token had no sub claim");
+    }
+    sub = payload.sub;
+    username = typeof payload.preferred_username === "string" ? payload.preferred_username : undefined;
+  } catch (err) {
+    return redirectToLogin(request, `id_token verification failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  // From here on sso-auth is out of the picture entirely - this is Flow's
+  // own session, independent of the ID token's 1-hour lifetime.
+  const sessionToken = await createSessionToken({ sub, username });
+
+  const response = NextResponse.redirect(new URL(POST_LOGIN_REDIRECT, request.url));
+  response.cookies.set(SESSION_COOKIE, sessionToken, sessionCookieOptions());
+  response.cookies.delete(SSO_CODE_VERIFIER_COOKIE);
+  response.cookies.delete(SSO_STATE_COOKIE);
+  return response;
 }

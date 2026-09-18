@@ -22,98 +22,153 @@ Open http://localhost:3000 — it redirects to `/dashboard`.
 - **Budget**: per-category spending limits with day/week/month recurrence and effective-dated amendments (editing a recurring budget never rewrites its history — see the "Budget" section below)
 - **PWA**: installable via `public/manifest.json`, icon sourced entirely from `public/icons/icon.svg` — one file, referenced everywhere (manifest, favicon, apple touch icon, sidebar logo). Swap that single file to rebrand.
 
-## Authentication (sso-auth, steps 1–5 of Phase 4)
+## Authentication
 
-Flow authenticates via **sso-auth**, a separate, already-deployed OIDC
-provider — not something built inside this repo. Flow is its first real
-client. Env vars needed: `SSO_ISSUER`, `SSO_CLIENT_ID`, `SSO_REDIRECT_URI`,
-and `FLOW_SESSION_SECRET` (see `.env.local.example`).
+Flow authenticates against **sso-auth**, a separate, independently-deployed
+OIDC identity provider (its own Next.js project, own Airtable base) — not
+something built inside this repo. Flow is one of its client applications.
+This section documents what Flow's own code actually does, verified against
+the real route files rather than against the original integration plan
+(which had a couple of inaccuracies the actual sso-auth source corrected —
+see "Corrections vs. the original plan" below). **Caveat**: sso-auth has
+since shipped several more phases on its own side (discovery/JWKS endpoints,
+a client registry, silent renewal via `prompt=none`, a client-management
+dashboard) that were built after Flow's integration and that this doc was
+never re-verified against. If sso-auth's `/authorize` or token endpoint
+behavior has changed since, treat anything below describing *sso-auth's*
+side as possibly stale — everything describing *Flow's* own code is current.
 
-**The flow:**
-1. `GET /api/auth/login` — generates a PKCE `code_verifier`/`code_challenge`
-   pair and a CSRF `state`, stores both in short-lived httpOnly cookies,
-   redirects to `${SSO_ISSUER}/authorize`. No client secret anywhere — PKCE
-   plus sso-auth's public JWKS replace that entirely for a public client
-   like Flow.
-2. `GET /api/auth/callback` — validates `state`, exchanges the returned
-   `code` for tokens at sso-auth's token endpoint, verifies the `id_token`
-   against sso-auth's JWKS (`src/lib/sso.ts`'s `getSsoJwks`, checking
-   `issuer`/`audience`), then sets **Flow's own session** — not sso-auth's
-   token — and clears the transient cookies.
-3. `src/middleware.ts` gates every route (pages *and* `/api/*`, except the
-   auth routes themselves and static assets) on that session cookie alone.
-   sso-auth is never contacted again after step 2 — this is the whole point
-   of Flow minting its own session rather than re-verifying the ID token on
-   every request.
+### Env vars
 
-**Flow's own session** (`src/lib/session.ts`) is a signed HS256 JWT in an
-httpOnly `flow_session` cookie, 30-day lifetime — deliberately independent
-of and longer than sso-auth's 1-hour ID token, which has no refresh flow
-yet (that's sso-auth's own Phase 5, a different phase than this one).
+`SSO_ISSUER`, `SSO_CLIENT_ID`, `SSO_REDIRECT_URI`, `FLOW_SESSION_SECRET` —
+see `.env.local.example`. No client secret: PKCE plus sso-auth's public JWKS
+replace that entirely for a public client like Flow.
 
-**Fixed bug**: `/api/auth/login` was getting cached (`cache=HIT` in production
-logs), silently serving the *same* baked-in `code_verifier`/`state`/`Set-Cookie`
-to every visitor instead of generating fresh ones per request — which is
-exactly what produced "missing state/code_verifier cookie" failures in the
-callback route. Root cause: a GET Route Handler with no dynamic API usage
-(no `NextRequest` param, no `cookies()`/`headers()` call) is treated by
-Next.js's App Router as static and cacheable by default. All three auth
-routes now explicitly export `dynamic = "force-dynamic"` and
-`revalidate = 0` — the login route also sets an explicit `Cache-Control:
-no-store` header as defense-in-depth against a misconfigured CDN/edge cache
-reintroducing the same bug independently of Next.js's own behavior. If you
-ever add another route that mints a per-request secret (a new OAuth-style
-flow, a one-time token, etc.), it needs the same two exports.
+### The flow, step by step
 
-**Logged-out UX**: unauthenticated page visits (via middleware) and
-`/api/auth/logout` both land on `/logged-out` — a real page with a "Log In"
-button — rather than bouncing straight into sso-auth with no stop in
-between. That matters most right after logging out: redirecting straight
-back to `/api/auth/login` would immediately restart the OIDC flow, making
-"log out" look like it didn't do anything.
+1. **Unauthenticated visit.** `src/middleware.ts` checks the `flow_session`
+   cookie on every request (pages and `/api/*` alike, except the auth
+   routes and static assets — see its `PUBLIC_PATHS`). No valid session:
+   pages redirect to `/logged-out`; `/api/*` routes get a `401` JSON body
+   instead, so a `fetch()` call can detect "logged out" and react, rather
+   than following a redirect into an HTML login page and failing
+   confusingly on `res.json()`.
+2. **`/logged-out`.** A real page with a "Log In" button — deliberately
+   *not* an automatic bounce into sso-auth. Reached both from middleware
+   and from `/api/auth/logout`; landing here right after clicking "log out"
+   is the case that most needed a stop, not an instant re-login.
+3. **`GET /api/auth/login`** (triggered by that button). Generates a PKCE
+   `code_verifier` (32 random bytes, base64url) and its SHA-256
+   `code_challenge`, plus a CSRF `state`, stores both `code_verifier` and
+   `state` in short-lived (15 min) httpOnly cookies, then redirects to
+   `${SSO_ISSUER}/authorize` with `client_id`, `redirect_uri`,
+   `response_type=code`, `code_challenge`, `code_challenge_method=S256`,
+   `scope=openid`, and `state`.
+4. **sso-auth's own login form** (a different origin entirely — Flow has
+   no visibility into or control over what happens here). Confirmed against
+   its source at integration time: `/authorize` is itself gated by
+   sso-auth's *own* middleware, which redirects to sso-auth's `/login` page
+   if there's no session on sso-auth's own domain, then back to
+   `/authorize` once there is one.
+5. **`GET /api/auth/callback`** (`SSO_REDIRECT_URI` must point here,
+   character-for-character matching an entry in sso-auth's `Clients` table —
+   this match is a strict `.includes()`, not normalized). Validates `state`
+   against the cookie; any mismatch or missing cookie redirects back to
+   `/logged-out` rather than dead-ending. Exchanges `code` for tokens at
+   `${SSO_ISSUER}/api/oidc/token` (`application/x-www-form-urlencoded`;
+   confirmed the real endpoint also accepts JSON, but form-urlencoded is
+   what Flow sends). Verifies the returned `id_token`'s signature and
+   `issuer`/`audience` claims against sso-auth's JWKS
+   (`src/lib/sso.ts`'s `getSsoJwks`, fetched from
+   `${SSO_ISSUER}/.well-known/jwks.json`, memoized per-issuer). Reads
+   `sub` and `preferred_username` from the verified payload — confirmed
+   these are exactly the two claims sso-auth's `signIdToken` sets.
+6. **Flow's own session.** On success, callback mints Flow's *own* session
+   (next section) and redirects to `/dashboard`. sso-auth is not contacted
+   again after this point for the lifetime of that session — middleware's
+   authenticated path only ever calls `verifySessionToken` locally, no
+   network call, no re-visiting sso-auth on every request.
+7. **Logout.** `GET /api/auth/logout` clears only the `flow_session`
+   cookie and redirects to `/logged-out`. It deliberately never calls
+   sso-auth — Flow's session is independent of sso-auth's after step 6, so
+   there's nothing on sso-auth's side that logging out of Flow needs to
+   touch.
 
-**Mobile profile menu**: `ProfileMenu.tsx`, top-left on the Dashboard
-(mobile only — desktop already has Settings/Log out via the sidebar).
-Circular avatar showing the first letter of the username pulled from
-`x-flow-user-username` — the header middleware forwards but nothing read
-until now. Dropdown has Settings (placeholder page, also fixes what was
-previously a dead link in the sidebar) and Log out.
+### Flow's own session
 
-**Two deviations from the plan doc worth knowing about**, since I couldn't
-verify either against a running sso-auth instance:
-- Added `scope=openid` to the `/authorize` redirect — required by OIDC spec
-  for the response to include an ID token at all, but not listed in the
-  plan's parameter list. Remove if sso-auth's `/authorize` rejects an
-  unrecognized param.
-- API routes get a `401 {"error": "Not authenticated"}` when logged out,
-  not a redirect — a `fetch()` call that got redirected to sso-auth's
-  hosted login page would follow it, get HTML back, and fail confusingly on
-  `res.json()`. Pages still redirect normally.
+`src/lib/session.ts` — a signed HS256 JWT (via `jose`) in an httpOnly
+`flow_session` cookie, 30-day lifetime. Deliberately independent of and
+longer-lived than sso-auth's 1-hour ID token: Flow only verifies that ID
+token once, at login time, and never needs to re-verify or refresh it
+afterward. `verifySessionToken` returns `null` for anything invalid —
+wrong signature (tampered), expired, or malformed — so every caller treats
+those cases identically as "not logged in."
 
-**Still ahead**: step 6 confirmed clean by grepping the codebase — no old auth
-remnants existed to remove (Flow had none before this), and every env var
-referenced in code is documented in `.env.local.example`. Step 7's checklist,
-verified as far as static code review allows:
+### The caching bug (fixed, but the underlying rule matters everywhere)
 
-- [x] **Tampering with the session cookie is rejected** — verified by
-  construction: `verifySessionToken` wraps `jwtVerify` in a try/catch that
-  returns `null` on any failure, and jose's HMAC verification will reject
-  any single-byte change to a signed JWT. Not run against a live instance,
-  but this part needs no network call to test — it's pure JWT logic.
-- [x] **Refresh doesn't trigger another sso-auth round trip** — verified by
-  reading `middleware.ts`: the authenticated path only calls
-  `verifySessionToken` (local, no network), and never references
-  `SSO_ISSUER` or makes a `fetch()` call at all once a valid session exists.
-- [x] **Logout clears Flow's session without touching sso-auth** — now
-  built (`/api/auth/logout`, linked from the sidebar); deliberately makes
-  no call to sso-auth at all, consistent with Flow's session being
-  independent after login.
-- [ ] **The actual logged-out → sso-auth login form → back into Flow round
-  trip** — this is the one item I genuinely can't verify myself. It
-  depends on sso-auth's real `/authorize` and `/api/oidc/token` endpoints
-  behaving exactly as the integration plan describes, which I have no way
-  to confirm without a live deployment and real credentials. This needs
-  you to click through it after deploying.
+`/api/auth/login` was getting cached by Next.js's App Router — confirmed
+via `cache=HIT` in production logs — silently serving the *same* baked-in
+`code_verifier`/`state`/`Set-Cookie` to every visitor instead of generating
+fresh ones per request. That's exactly what produced "missing
+state/code_verifier cookie" failures downstream in the callback route.
+
+**Root cause**: a GET Route Handler (or a page) with no dynamic API usage
+— no `NextRequest` param, no `cookies()`/`headers()`/`searchParams` call —
+is treated by Next.js's App Router as static and cacheable *by default*.
+This is a general rule, not specific to this one route: **any route that
+mints a per-request secret, nonce, or random state needs `export const
+dynamic = "force-dynamic"` and `export const revalidate = 0`, or it can
+serve stale baked-in values in production.** Applied to all three auth
+routes, plus `/logged-out` and `/settings` once those existed (same shape,
+same risk, even though they don't mint secrets themselves). The login
+route also sets an explicit `Cache-Control: no-store` header, and
+middleware's own redirect/401 responses do too, as defense-in-depth against
+a misconfigured CDN/edge cache reintroducing the same bug independently of
+Next.js's own caching behavior.
+
+### Corrections vs. the original integration plan
+
+Cross-checked against sso-auth's actual source at integration time (not
+just the plan doc), two things worth knowing:
+- The plan's parameter list for `/authorize` didn't include `scope`. OIDC
+  spec requires `scope=openid` for the response to include an ID token at
+  all, so Flow sends it — confirmed sso-auth's `/authorize` doesn't
+  currently read or enforce `scope` either way, so this is a safe no-op
+  addition, not a conflict.
+- The plan didn't specify the token endpoint's request encoding. Confirmed
+  sso-auth's real token route branches on `Content-Type` and accepts both
+  JSON and `application/x-www-form-urlencoded` — Flow sends the latter.
+
+### Known open issue
+
+An `ERR_TOO_MANY_REDIRECTS` loop was reported after the deploy that added
+`/logged-out`, the mobile profile menu, and the design pass. Static code
+review (tracing `middleware.ts`'s `PUBLIC_PATHS`, the matcher's exclusions,
+every redirect target) did not turn up a certain mechanism for an actual
+loop. Applied the same "force-dynamic + no-store" treatment to `/logged-out`
+and `/settings` and to middleware's own redirect responses as a defensible,
+zero-risk precaution — but this was **not** confirmed as the root cause,
+only as closing the same category of gap that caused the earlier confirmed
+bug. If it recurs, the actual redirect chain (browser DevTools Network tab,
+"Preserve log" on, or Vercel's logs) is the only way to pin down which
+specific URLs it's bouncing between — that evidence is still outstanding.
+
+### Test checklist status
+
+- [x] **Tampering with the session cookie is rejected** — by construction:
+  `verifySessionToken` wraps `jwtVerify` in a try/catch returning `null` on
+  any failure, and HMAC verification rejects any single-byte change to a
+  signed JWT. Pure JWT logic, no network call needed to verify this one.
+- [x] **Refresh doesn't trigger another sso-auth round trip** — confirmed
+  by reading `middleware.ts`: the authenticated path never references
+  `SSO_ISSUER` or calls `fetch()`.
+- [x] **Logout clears Flow's session without touching sso-auth** — confirmed
+  by reading the route: no call to sso-auth anywhere in it.
+- [ ] **The full logged-out → sso-auth login form → back into Flow round
+  trip** — depends on sso-auth's real endpoints behaving as documented,
+  which can't be verified without a live deployment and real credentials.
+  Needs to be clicked through after each deploy that touches auth.
+
 
 ## Roadmap
 

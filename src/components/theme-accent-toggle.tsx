@@ -48,21 +48,29 @@ export function ThemeAccentToggle() {
       >
         Theme: {theme}
       </button>
-      <div className="flex items-center gap-1.5" role="group" aria-label="Accent color">
+      <div className="flex items-center gap-1" role="group" aria-label="Accent color">
         <button
           aria-label="Green accent"
           aria-pressed={accent === "green"}
           onClick={() => selectAccent("green")}
-          className={`h-6 w-6 rounded-full border-2 ${accent === "green" ? "border-foreground" : "border-transparent"}`}
-          style={{ backgroundColor: "#639922" }}
-        />
+          className="flex h-9 w-9 items-center justify-center rounded-full"
+        >
+          <span
+            className={`h-6 w-6 rounded-full border-2 ${accent === "green" ? "border-foreground" : "border-transparent"}`}
+            style={{ backgroundColor: "#639922" }}
+          />
+        </button>
         <button
           aria-label="Blue accent"
           aria-pressed={accent === "blue"}
           onClick={() => selectAccent("blue")}
-          className={`h-6 w-6 rounded-full border-2 ${accent === "blue" ? "border-foreground" : "border-transparent"}`}
-          style={{ backgroundColor: "#185fa5" }}
-        />
+          className="flex h-9 w-9 items-center justify-center rounded-full"
+        >
+          <span
+            className={`h-6 w-6 rounded-full border-2 ${accent === "blue" ? "border-foreground" : "border-transparent"}`}
+            style={{ backgroundColor: "#185fa5" }}
+          />
+        </button>
       </div>
     </div>
   );

@@ -3,54 +3,97 @@
 @tailwind utilities;
 
 :root {
-  --font-display: "Manrope", "Segoe UI", sans-serif;
-  --font-body: "Inter", "Segoe UI", sans-serif;
+  /* Monochrome base */
+  --gray-50: #fafafa;
+  --gray-100: #f4f4f5;
+  --gray-200: #e4e4e7;
+  --gray-300: #d4d4d8;
+  --gray-400: #a1a1aa;
+  --gray-500: #71717a;
+  --gray-600: #52525b;
+  --gray-700: #3f3f46;
+  --gray-800: #27272a;
+  --gray-900: #18181b;
+  --gray-950: #09090b;
+
+  --background: var(--gray-50);
+  --foreground: var(--gray-950);
+  --surface: #ffffff;
+  --surface-muted: var(--gray-100);
+  --border: var(--gray-200);
+  --text-secondary: var(--gray-600);
+  --text-muted: var(--gray-400);
+
+  /* Accent scales — light mode stops */
+  --accent-green-fg: #173404;
+  --accent-green-bg: #eaf3de;
+  --accent-green-solid: #639922;
+
+  --accent-blue-fg: #042c53;
+  --accent-blue-bg: #e6f1fb;
+  --accent-blue-solid: #185fa5;
 }
 
-html,
+[data-theme="dark"] {
+  --background: var(--gray-950);
+  --foreground: var(--gray-50);
+  --surface: var(--gray-900);
+  --surface-muted: var(--gray-800);
+  --border: var(--gray-700);
+  --text-secondary: var(--gray-400);
+  --text-muted: var(--gray-500);
+
+  --accent-green-fg: #c0dd97;
+  --accent-green-bg: #27500a;
+  --accent-green-solid: #97c459;
+
+  --accent-blue-fg: #b5d4f4;
+  --accent-blue-bg: #0c447c;
+  --accent-blue-solid: #85b7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: var(--gray-950);
+    --foreground: var(--gray-50);
+    --surface: var(--gray-900);
+    --surface-muted: var(--gray-800);
+    --border: var(--gray-700);
+    --text-secondary: var(--gray-400);
+    --text-muted: var(--gray-500);
+
+    --accent-green-fg: #c0dd97;
+    --accent-green-bg: #27500a;
+    --accent-green-solid: #97c459;
+
+    --accent-blue-fg: #b5d4f4;
+    --accent-blue-bg: #0c447c;
+    --accent-blue-solid: #85b7eb;
+  }
+}
+
+/* Accent selection — green is default, [data-accent="blue"] switches all three */
+:root,
+[data-accent="green"] {
+  --accent-fg: var(--accent-green-fg);
+  --accent-bg: var(--accent-green-bg);
+  --accent-solid: var(--accent-green-solid);
+}
+
+[data-accent="blue"] {
+  --accent-fg: var(--accent-blue-fg);
+  --accent-bg: var(--accent-blue-bg);
+  --accent-solid: var(--accent-blue-solid);
+}
+
 body {
-  background-color: #f5f7f6;
-  color: #0f1a1c;
-  /* Every number in a finance app benefits from fixed-width digits (amounts,
-     dates, percentages all align in columns) - applying this once at the
-     body level covers every formatCurrency()/formatPoints() call site
-     without needing tabular-nums added to 16+ individual components. */
-  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-* {
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-thumb {
-  background: #d5dcda;
-  border-radius: 999px;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/*
- * iOS Safari auto-zooms the whole page when a focused input/select/textarea
- * renders below 16px, regardless of the viewport meta's maximumScale. Several
- * form fields across the app use Tailwind's text-sm (14px) inline, so this
- * forces every one of them to 16px with !important - a plain element
- * selector like this has lower specificity than any Tailwind text-size
- * utility class, so without !important this rule would silently lose and
- * do nothing.
- */
-input,
-select,
-textarea {
-  font-size: 16px !important;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }

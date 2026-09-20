@@ -1,19 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { setAccentPreference } from "@/app/actions/preferences";
+import type { Accent } from "@/lib/preferences";
 
 type Theme = "light" | "dark" | "system";
-type Accent = "green" | "blue";
 
 export function ThemeAccentToggle() {
   const [theme, setTheme] = useState<Theme>("system");
   const [accent, setAccent] = useState<Accent>("green");
 
+  // Theme stays client-only (localStorage) — not a per-user persisted
+  // preference yet. Accent's initial value comes from the server-rendered
+  // data-accent attribute (cookie), so we read that instead of localStorage
+  // to stay in sync with SSR.
   useEffect(() => {
     const storedTheme = (localStorage.getItem("flow_theme") as Theme) || "system";
-    const storedAccent = (localStorage.getItem("flow_accent") as Accent) || "green";
     setTheme(storedTheme);
-    setAccent(storedAccent);
+
+    const current = document.documentElement.getAttribute("data-accent");
+    if (current === "green" || current === "blue") setAccent(current);
   }, []);
 
   useEffect(() => {
@@ -26,13 +32,14 @@ export function ThemeAccentToggle() {
     localStorage.setItem("flow_theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-accent", accent);
-    localStorage.setItem("flow_accent", accent);
-  }, [accent]);
+  function selectAccent(next: Accent) {
+    setAccent(next);
+    document.documentElement.setAttribute("data-accent", next); // instant, no reload
+    setAccentPreference(next); // persist to cookie in the background
+  }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-3">
       <button
         className="rounded-card border border-border bg-surface px-3 py-1.5 text-sm"
         onClick={() =>
@@ -41,12 +48,22 @@ export function ThemeAccentToggle() {
       >
         Theme: {theme}
       </button>
-      <button
-        className="rounded-card border border-border bg-surface px-3 py-1.5 text-sm"
-        onClick={() => setAccent(accent === "green" ? "blue" : "green")}
-      >
-        Accent: {accent}
-      </button>
+      <div className="flex items-center gap-1.5" role="group" aria-label="Accent color">
+        <button
+          aria-label="Green accent"
+          aria-pressed={accent === "green"}
+          onClick={() => selectAccent("green")}
+          className={`h-6 w-6 rounded-full border-2 ${accent === "green" ? "border-foreground" : "border-transparent"}`}
+          style={{ backgroundColor: "#639922" }}
+        />
+        <button
+          aria-label="Blue accent"
+          aria-pressed={accent === "blue"}
+          onClick={() => selectAccent("blue")}
+          className={`h-6 w-6 rounded-full border-2 ${accent === "blue" ? "border-foreground" : "border-transparent"}`}
+          style={{ backgroundColor: "#185fa5" }}
+        />
+      </div>
     </div>
   );
 }

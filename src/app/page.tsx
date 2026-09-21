@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { headers } from "next/headers";
 import { AppShell } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
@@ -25,18 +26,23 @@ export default async function Home() {
         </Card>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-card bg-surface-muted p-4">
+          <Link href="/accounts/own" className="rounded-card bg-surface-muted p-4">
             <p className="text-sm text-text-secondary">Own</p>
             <p className="mt-1 text-xl font-medium">{formatCurrency(data.own)}</p>
-          </div>
-          <div className="rounded-card bg-surface-muted p-4">
+          </Link>
+          <Link href="/accounts/owe" className="rounded-card bg-surface-muted p-4">
             <p className="text-sm text-text-secondary">Owe</p>
             <p className="mt-1 text-xl font-medium">{formatCurrency(data.owe)}</p>
-          </div>
+          </Link>
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="px-1 text-sm text-text-secondary">Recent transactions</span>
+          <div className="flex items-center justify-between px-1">
+            <span className="text-sm text-text-secondary">Recent transactions</span>
+            <Link href="/transactions" className="text-sm font-medium text-accent">
+              Show all
+            </Link>
+          </div>
           {data.recentTransactions.map((tx) => (
             <TransactionRow key={tx.id} tx={tx} />
           ))}

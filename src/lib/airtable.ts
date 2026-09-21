@@ -97,6 +97,15 @@ export async function updateRecords<T extends object>(
   return updated;
 }
 
+export async function deleteRecords(table: string, recordIds: string[]): Promise<void> {
+  for (const batch of chunk(recordIds, 10)) {
+    const url = new URL(baseUrl(table));
+    for (const id of batch) url.searchParams.append("records[]", id);
+    const res = await fetch(url.toString(), { method: "DELETE", headers: authHeaders() });
+    if (!res.ok) throw new Error(`Airtable deleteRecords(${table}) failed: ${res.status}`);
+  }
+}
+
 export async function findRecordIdByAppId(table: string, appId: string): Promise<string | null> {
   const records = await fetchAllRecords<{ id: string }>(table, {
     filterByFormula: `{id} = "${appId}"`,

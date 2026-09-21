@@ -1,0 +1,91 @@
+import type { TransactionFields, AccountFields } from "@/lib/airtableData";
+
+export function TransactionFormFields({
+  defaults,
+  accounts,
+}: {
+  defaults?: Partial<TransactionFields>;
+  accounts: AccountFields[];
+}) {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <label className="flex flex-col gap-1 text-sm">
+        Account
+        <select
+          name="account_id"
+          required
+          defaultValue={defaults?.account_id}
+          className="rounded-card border border-border bg-surface p-3"
+        >
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Type
+        <select
+          name="type"
+          required
+          defaultValue={defaults?.type ?? "expense"}
+          className="rounded-card border border-border bg-surface p-3"
+        >
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+          <option value="transfer">Transfer</option>
+        </select>
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Amount
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          name="amount"
+          required
+          defaultValue={defaults?.amount}
+          className="rounded-card border border-border bg-surface p-3"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Category
+        <input
+          name="category_id"
+          defaultValue={defaults?.category_id}
+          placeholder="cat_food"
+          className="rounded-card border border-border bg-surface p-3"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Merchant
+        <input
+          name="merchant"
+          defaultValue={defaults?.merchant}
+          className="rounded-card border border-border bg-surface p-3"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Date
+        <input
+          type="date"
+          name="date"
+          required
+          defaultValue={defaults?.date ?? today}
+          className="rounded-card border border-border bg-surface p-3"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        Note
+        <textarea
+          name="note"
+          defaultValue={defaults?.note}
+          className="rounded-card border border-border bg-surface p-3"
+        />
+      </label>
+    </div>
+  );
+}

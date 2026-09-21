@@ -86,10 +86,16 @@ export async function exchangeCodeForToken({
   return id_token as string;
 }
 
-const JWKS = createRemoteJWKSet(new URL(`${SSO_ISSUER}/.well-known/jwks.json`));
+let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
+function getJWKS() {
+  if (!jwks) {
+    jwks = createRemoteJWKSet(new URL(`${SSO_ISSUER}/.well-known/jwks.json`));
+  }
+  return jwks;
+}
 
 export async function verifyIdToken(idToken: string) {
-  const { payload } = await jwtVerify(idToken, JWKS, {
+  const { payload } = await jwtVerify(idToken, getJWKS(), {
     issuer: SSO_ISSUER,
     audience: SSO_CLIENT_ID,
   });

@@ -11,14 +11,14 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="flex items-center justify-between border-b border-border px-6 py-4">
+      <header className="mx-auto flex max-w-md items-center justify-between px-4 py-4">
         <div className="flex items-center gap-3">
           <Avatar name={username} size="sm" />
           <span className="text-sm font-medium">{username}</span>
         </div>
         <ThemeAccentToggle />
       </header>
-      <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-md px-4 py-4">{children}</main>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { getAccounts, getTransactions, currentBalance } from "@/lib/airtableData";
+
 export type Account = {
   id: string;
   name: string;
@@ -19,22 +21,53 @@ export type DashboardData = {
   recentTransactions: Transaction[];
 };
 
-// Placeholder until Airtable is wired back in (Phase 4 note in PLAN.md).
-// Swap this function's body for a real Airtable fetch later — the shape
-// above is what the UI components below expect.
+function toCardKind(type: string): Account["kind"] {
+  return type === "credit_card" ? "credit" : "checking";
+}
+
+// Simplified: % change is this calendar month's net (income − expense)
+// relative to total balance. Not a true trend line — good enough for the
+// dashboard summary pill until real period-over-period logic is needed.
+function monthChangePct(totalBalance: number, transactions: Awaited<ReturnType<typeof getTransactions>>) {
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  let net = 0;
+  for (const tx of transactions) {
+    if (!tx.date?.startsWith(monthKey)) continue;
+    if (tx.type === "income") net += tx.amount;
+    else if (tx.type === "expense") net -= tx.amount;
+  }
+  if (totalBalance === 0) return 0;
+  return Math.round((net / totalBalance) * 1000) / 10;
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
+  const [accounts, transactions] = await Promise.all([getAccounts(), getTransactions()]);
+
+  const accountsWithBalance = accounts.map((a) => ({
+    id: a.id,
+    name: a.name,
+    balance: currentBalance(a, transactions),
+    kind: toCardKind(a.type),
+  }));
+
+  const totalBalance = accountsWithBalance.reduce((sum, a) => sum + a.balance, 0);
+
+  const recentTransactions = [...transactions]
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+    .slice(0, 5)
+    .map((tx) => ({
+      id: tx.id,
+      merchant: tx.merchant || "Unknown",
+      date: tx.date,
+      amount: tx.type === "expense" ? -tx.amount : tx.amount,
+    }));
+
   return {
-    totalBalance: 18240.5,
-    monthChangePct: 2.4,
-    accounts: [
-      { id: "acc_checking", name: "Checking", balance: 6120.1, kind: "checking" },
-      { id: "acc_credit", name: "Credit card", balance: -1340.0, kind: "credit" },
-    ],
-    recentTransactions: [
-      { id: "tx_1", merchant: "Blue Bottle Coffee", date: "Today, 9:41 AM", amount: -6.5 },
-      { id: "tx_2", merchant: "Whole Foods Market", date: "Yesterday, 6:12 PM", amount: -84.32 },
-      { id: "tx_3", merchant: "Salary deposit", date: "Sep 18, 9:00 AM", amount: 4200.0 },
-    ],
+    totalBalance,
+    monthChangePct: monthChangePct(totalBalance, transactions),
+    accounts: accountsWithBalance,
+    recentTransactions,
   };
 }
 

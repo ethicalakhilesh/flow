@@ -1,4 +1,5 @@
 import { fetchAllRecords, createRecords, updateRecords, deleteRecords, findRecordIdByAppId } from "@/lib/airtable";
+import { nowIST } from "@/lib/ist-date";
 
 export type AccountFields = {
   id: string;
@@ -130,8 +131,13 @@ export type TransactionInput = {
 };
 
 export async function createTransaction(input: TransactionInput) {
+  // nowIST().toISOString() prints with a trailing "Z" but the clock digits
+  // are IST wall-time, not UTC — intentional: created_at is kept as opaque
+  // raw text for sub-day ordering (per schema doc), never parsed back as a
+  // real UTC instant, so what matters is that IST timestamps sort correctly
+  // against each other.
   await createRecords<TransactionFields>("transactions", [
-    { id: newId("txn"), created_at: new Date().toISOString(), ...input } as TransactionFields,
+    { id: newId("txn"), created_at: nowIST().toISOString(), ...input } as TransactionFields,
   ]);
 }
 

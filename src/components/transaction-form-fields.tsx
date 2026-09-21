@@ -1,4 +1,5 @@
 import type { TransactionFields, AccountFields, CategoryFields } from "@/lib/airtableData";
+import { todayISTDateString } from "@/lib/ist-date";
 
 export function TransactionFormFields({
   defaults,
@@ -9,7 +10,7 @@ export function TransactionFormFields({
   accounts: AccountFields[];
   categories: CategoryFields[];
 }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayISTDateString();
 
   return (
     <div className="flex flex-col gap-4">

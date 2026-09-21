@@ -1,4 +1,5 @@
 import { getAccounts, getTransactions, currentBalance, type AccountFields } from "@/lib/airtableData";
+import { currentISTMonthKey } from "@/lib/ist-date";
 
 export type Transaction = {
   id: string;
@@ -21,8 +22,7 @@ const OWE_TYPES: AccountFields["type"][] = ["credit_card", "loan"];
 // for the dashboard summary pill until real period-over-period logic is
 // needed.
 function monthChangePct(netWorth: number, transactions: Awaited<ReturnType<typeof getTransactions>>) {
-  const now = new Date();
-  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const monthKey = currentISTMonthKey();
   let net = 0;
   for (const tx of transactions) {
     if (!tx.date?.startsWith(monthKey)) continue;
@@ -70,5 +70,11 @@ export async function getDashboardData(): Promise<DashboardData> {
 
 export function formatCurrency(amount: number) {
   const sign = amount < 0 ? "-" : "";
-  return `${sign}$${Math.abs(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatted = Math.abs(amount).toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `${sign}${formatted}`;
 }

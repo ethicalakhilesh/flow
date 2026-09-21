@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
-import { ThemeAccentToggle } from "@/components/theme-accent-toggle";
+import { ThemeToggle } from "@/components/theme-accent-toggle";
 
 export function AppShell({
   username,
@@ -16,7 +16,7 @@ export function AppShell({
           <Avatar name={username} size="sm" />
           <span className="text-sm font-medium">{username}</span>
         </div>
-        <ThemeAccentToggle />
+        <ThemeToggle />
       </header>
       <main className="mx-auto max-w-md px-4 py-4">{children}</main>
     </div>

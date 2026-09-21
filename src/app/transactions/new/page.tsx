@@ -2,12 +2,12 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { AppShell } from "@/components/app-shell";
 import { TransactionFormFields } from "@/components/transaction-form-fields";
-import { getAccounts } from "@/lib/airtableData";
+import { getAccounts, getCategories } from "@/lib/airtableData";
 import { createTransactionAction } from "@/app/actions/transactions";
 
 export default async function NewTransaction() {
   const username = headers().get("x-flow-user-username") ?? "Guest";
-  const accounts = await getAccounts();
+  const [accounts, categories] = await Promise.all([getAccounts(), getCategories()]);
 
   return (
     <AppShell username={username}>
@@ -17,7 +17,7 @@ export default async function NewTransaction() {
         </Link>
         <h1 className="text-xl font-medium">Add transaction</h1>
         <form action={createTransactionAction} className="flex flex-col gap-4">
-          <TransactionFormFields accounts={accounts} />
+          <TransactionFormFields accounts={accounts} categories={categories} />
           <button
             type="submit"
             className="rounded-card bg-accent py-3 text-sm font-medium text-white"

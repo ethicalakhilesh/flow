@@ -31,8 +31,23 @@ export type TransactionFields = {
   linked_account_id?: string;
 };
 
+export type CategoryFields = {
+  id: string;
+  name: string;
+  type: "income" | "expense" | "transfer";
+  icon?: string;
+  color?: string;
+};
+
 function newId(prefix: string) {
   return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+// Read-only — no write route for categories yet (seeded directly in
+// Airtable per the schema doc).
+export async function getCategories(): Promise<CategoryFields[]> {
+  const records = await fetchAllRecords<CategoryFields>("categories");
+  return records.map((r) => r.fields);
 }
 
 export async function getAccounts(): Promise<AccountFields[]> {

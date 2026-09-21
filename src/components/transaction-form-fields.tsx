@@ -1,11 +1,13 @@
-import type { TransactionFields, AccountFields } from "@/lib/airtableData";
+import type { TransactionFields, AccountFields, CategoryFields } from "@/lib/airtableData";
 
 export function TransactionFormFields({
   defaults,
   accounts,
+  categories,
 }: {
   defaults?: Partial<TransactionFields>;
   accounts: AccountFields[];
+  categories: CategoryFields[];
 }) {
   const today = new Date().toISOString().slice(0, 10);
 
@@ -53,12 +55,18 @@ export function TransactionFormFields({
       </label>
       <label className="flex flex-col gap-1 text-sm">
         Category
-        <input
+        <select
           name="category_id"
-          defaultValue={defaults?.category_id}
-          placeholder="cat_food"
+          defaultValue={defaults?.category_id ?? ""}
           className="rounded-card border border-border bg-surface p-3"
-        />
+        >
+          <option value="">None</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="flex flex-col gap-1 text-sm">
         Merchant

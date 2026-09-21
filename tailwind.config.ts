@@ -22,6 +22,8 @@ const config: Config = {
           fg: "var(--accent-fg)",
           bg: "var(--accent-bg)",
         },
+        success: "var(--success-fg)",
+        danger: "var(--danger-fg)",
       },
       borderRadius: {
         card: "12px",

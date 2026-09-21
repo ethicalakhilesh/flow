@@ -24,7 +24,9 @@ export function TransactionRow({ tx }: { tx: Transaction }) {
           <p className="text-xs text-text-muted">{tx.date}</p>
         </div>
       </div>
-      <span className="text-sm font-medium">{formatCurrency(tx.amount)}</span>
+      <span className={`text-sm font-medium ${tx.amount >= 0 ? "text-success" : "text-danger"}`}>
+        {formatCurrency(tx.amount)}
+      </span>
     </div>
   );
 }

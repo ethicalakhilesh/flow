@@ -9,7 +9,7 @@ export default async function Home() {
 
   if (!username) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 bg-background px-4 text-center">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-6 bg-background px-4 text-center">
         <h1 className="text-3xl font-bold">Flow</h1>
         <p className="text-sm text-text-secondary">
           Track your accounts, transactions, and net worth in one place.
@@ -28,7 +28,7 @@ export default async function Home() {
   const netWorth = data.own - data.owe;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <DashboardHero netWorth={formatCurrency(netWorth)} monthChangePct={data.monthChangePct} />
 
       <div className="mx-auto flex max-w-md flex-col gap-4 px-4 py-4">

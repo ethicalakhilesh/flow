@@ -8,7 +8,7 @@ export default function Profile() {
   const username = headers().get("x-flow-user-username") ?? "Guest";
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-background px-4 py-4">
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 bg-background px-4 py-4">
       <Link href="/" className="text-sm text-text-secondary">
         ← Back
       </Link>

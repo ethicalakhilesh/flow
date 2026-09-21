@@ -10,7 +10,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <header className="mx-auto flex max-w-md items-center justify-between px-4 py-4">
         <Link href="/profile" className="flex items-center gap-3">
           <Avatar name={username} size="sm" />

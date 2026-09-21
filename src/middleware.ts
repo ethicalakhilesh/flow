@@ -28,6 +28,14 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
+  // "/" is public — render the logged-out landing page instead of
+  // auto-bouncing to sso-auth. Every other route stays protected.
+  if (pathname === "/") {
+    const res = NextResponse.next();
+    res.headers.set("Cache-Control", "no-store, must-revalidate");
+    return res;
+  }
+
   // Not logged in — kick off PKCE flow
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);

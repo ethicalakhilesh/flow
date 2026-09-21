@@ -7,7 +7,25 @@ import { TransactionRow } from "@/components/transaction-row";
 import { getDashboardData, formatCurrency } from "@/lib/dashboard-data";
 
 export default async function Home() {
-  const username = headers().get("x-flow-user-username") ?? "Guest";
+  const username = headers().get("x-flow-user-username");
+
+  if (!username) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 bg-background px-4 text-center">
+        <h1 className="text-3xl font-bold">Flow</h1>
+        <p className="text-sm text-text-secondary">
+          Track your accounts, transactions, and net worth in one place.
+        </p>
+        <Link
+          href="/login"
+          className="rounded-card bg-accent px-6 py-3 text-sm font-medium text-white"
+        >
+          Log in
+        </Link>
+      </main>
+    );
+  }
+
   const data = await getDashboardData();
   const netWorth = data.own - data.owe;
 

@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { AppShell } from "@/components/app-shell";
-import { Card } from "@/components/ui/card";
-import { Pill } from "@/components/ui/pill";
-import { TransactionRow } from "@/components/transaction-row";
+import { DashboardHero } from "@/components/dashboard-hero";
+import { FlatTransactionRow } from "@/components/flat-transaction-row";
 import { getDashboardData, formatCurrency } from "@/lib/dashboard-data";
 
 export default async function Home() {
@@ -30,19 +28,10 @@ export default async function Home() {
   const netWorth = data.own - data.owe;
 
   return (
-    <AppShell username={username}>
-      <div className="flex flex-col gap-4">
-        <Card>
-          <div className="flex flex-col gap-3">
-            <span className="text-sm text-text-secondary">Net worth</span>
-            <p className="text-3xl font-medium">{formatCurrency(netWorth)}</p>
-            <Pill className="self-start">
-              {data.monthChangePct >= 0 ? "+" : ""}
-              {data.monthChangePct}% this month
-            </Pill>
-          </div>
-        </Card>
+    <div className="min-h-screen bg-background">
+      <DashboardHero netWorth={formatCurrency(netWorth)} monthChangePct={data.monthChangePct} />
 
+      <div className="mx-auto flex max-w-md flex-col gap-4 px-4 py-4">
         <div className="grid grid-cols-2 gap-3">
           <Link href="/accounts/own" className="rounded-card bg-surface-muted p-4">
             <p className="text-sm text-text-secondary">Own</p>
@@ -54,18 +43,22 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between px-1">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between px-1 pb-2">
             <span className="text-sm text-text-secondary">Recent transactions</span>
             <Link href="/transactions" className="text-sm font-medium text-accent">
               Show all
             </Link>
           </div>
-          {data.recentTransactions.map((tx) => (
-            <TransactionRow key={tx.id} tx={tx} />
+          {data.recentTransactions.map((tx, i) => (
+            <FlatTransactionRow
+              key={tx.id}
+              tx={tx}
+              isLast={i === data.recentTransactions.length - 1}
+            />
           ))}
         </div>
       </div>
-    </AppShell>
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import { fetchAllRecords } from "@/lib/airtable";
 export type AccountFields = {
   id: string;
   name: string;
-  type: "bank" | "savings" | "cash" | "wallet" | "credit_card";
+  type: "bank" | "savings" | "cash" | "wallet" | "credit_card" | "investment" | "loan";
   institution?: string;
   initial_balance: number;
   currency?: string;

@@ -1,11 +1,4 @@
-import { getAccounts, getTransactions, currentBalance } from "@/lib/airtableData";
-
-export type Account = {
-  id: string;
-  name: string;
-  balance: number;
-  kind: "checking" | "credit";
-};
+import { getAccounts, getTransactions, currentBalance, type AccountFields } from "@/lib/airtableData";
 
 export type Transaction = {
   id: string;
@@ -15,20 +8,19 @@ export type Transaction = {
 };
 
 export type DashboardData = {
-  totalBalance: number;
+  own: number;
+  owe: number;
   monthChangePct: number;
-  accounts: Account[];
   recentTransactions: Transaction[];
 };
 
-function toCardKind(type: string): Account["kind"] {
-  return type === "credit_card" ? "credit" : "checking";
-}
+const OWE_TYPES: AccountFields["type"][] = ["credit_card", "loan"];
 
 // Simplified: % change is this calendar month's net (income − expense)
-// relative to total balance. Not a true trend line — good enough for the
-// dashboard summary pill until real period-over-period logic is needed.
-function monthChangePct(totalBalance: number, transactions: Awaited<ReturnType<typeof getTransactions>>) {
+// relative to net worth (own − owe). Not a true trend line — good enough
+// for the dashboard summary pill until real period-over-period logic is
+// needed.
+function monthChangePct(netWorth: number, transactions: Awaited<ReturnType<typeof getTransactions>>) {
   const now = new Date();
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   let net = 0;
@@ -37,21 +29,26 @@ function monthChangePct(totalBalance: number, transactions: Awaited<ReturnType<t
     if (tx.type === "income") net += tx.amount;
     else if (tx.type === "expense") net -= tx.amount;
   }
-  if (totalBalance === 0) return 0;
-  return Math.round((net / totalBalance) * 1000) / 10;
+  if (netWorth === 0) return 0;
+  return Math.round((net / netWorth) * 1000) / 10;
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
   const [accounts, transactions] = await Promise.all([getAccounts(), getTransactions()]);
 
-  const accountsWithBalance = accounts.map((a) => ({
-    id: a.id,
-    name: a.name,
-    balance: currentBalance(a, transactions),
-    kind: toCardKind(a.type),
-  }));
+  let own = 0;
+  let owe = 0;
 
-  const totalBalance = accountsWithBalance.reduce((sum, a) => sum + a.balance, 0);
+  for (const account of accounts) {
+    const balance = currentBalance(account, transactions);
+    if (OWE_TYPES.includes(account.type)) {
+      // Outstanding balance owed — stored/derived as negative for credit
+      // cards, so flip sign to report a positive "owed" amount.
+      owe += Math.max(0, -balance);
+    } else {
+      own += balance;
+    }
+  }
 
   const recentTransactions = [...transactions]
     .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -64,9 +61,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     }));
 
   return {
-    totalBalance,
-    monthChangePct: monthChangePct(totalBalance, transactions),
-    accounts: accountsWithBalance,
+    own,
+    owe,
+    monthChangePct: monthChangePct(own - owe, transactions),
     recentTransactions,
   };
 }

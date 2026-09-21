@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { TransactionFields, AccountFields, CategoryFields } from "@/lib/airtableData";
 import { todayISTDateString } from "@/lib/ist-date";
 
@@ -11,6 +14,7 @@ export function TransactionFormFields({
   categories: CategoryFields[];
 }) {
   const today = todayISTDateString();
+  const [type, setType] = useState(defaults?.type ?? "expense");
 
   return (
     <div className="flex flex-col gap-4">
@@ -34,7 +38,8 @@ export function TransactionFormFields({
         <select
           name="type"
           required
-          defaultValue={defaults?.type ?? "expense"}
+          value={type}
+          onChange={(e) => setType(e.target.value as TransactionFields["type"])}
           className="rounded-card border border-border bg-surface p-3"
         >
           <option value="expense">Expense</option>
@@ -42,6 +47,23 @@ export function TransactionFormFields({
           <option value="transfer">Transfer</option>
         </select>
       </label>
+      {type === "transfer" && (
+        <label className="flex flex-col gap-1 text-sm">
+          To account
+          <select
+            name="to_account_id"
+            required
+            defaultValue={defaults?.linked_account_id}
+            className="rounded-card border border-border bg-surface p-3"
+          >
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <label className="flex flex-col gap-1 text-sm">
         Amount
         <input

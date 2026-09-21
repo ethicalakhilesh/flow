@@ -27,9 +27,14 @@ export type TransactionFields = {
   date: string;
   note?: string;
   created_at?: string;
+  raw_data_merchant?: string;
+  raw_data_category_id?: string;
+  raw_data_note?: string;
+  edited?: boolean; // Airtable omits unchecked checkboxes — check `=== true`
   transfer_id?: string;
   transfer_direction?: "out" | "in";
   linked_account_id?: string;
+  linked_transaction_id?: string;
 };
 
 export type CategoryFields = {
@@ -128,27 +133,128 @@ export type TransactionInput = {
   merchant?: string;
   date: string;
   note?: string;
+  to_account_id?: string; // transfers only — the destination account
 };
 
 export async function createTransaction(input: TransactionInput) {
+  const amount = Math.abs(input.amount); // always positive; sign is a display concern only
+  const createdAt = nowIST().toISOString(); // see comment below on the "Z" suffix
+
+  if (input.type === "transfer") {
+    if (!input.to_account_id) throw new Error("Transfer requires a destination account");
+    const transferId = newId("trf");
+    const outId = newId("txn");
+    const inId = newId("txn");
+
+    const outLeg: TransactionFields = {
+      id: outId,
+      account_id: input.account_id,
+      type: "transfer",
+      amount,
+      category_id: input.category_id,
+      merchant: input.merchant,
+      date: input.date,
+      note: input.note,
+      created_at: createdAt,
+      raw_data_merchant: input.merchant,
+      raw_data_category_id: input.category_id,
+      raw_data_note: input.note,
+      transfer_id: transferId,
+      transfer_direction: "out",
+      linked_account_id: input.to_account_id,
+      linked_transaction_id: inId,
+    };
+    const inLeg: TransactionFields = {
+      ...outLeg,
+      id: inId,
+      account_id: input.to_account_id,
+      transfer_direction: "in",
+      linked_account_id: input.account_id,
+      linked_transaction_id: outId,
+    };
+    await createRecords<TransactionFields>("transactions", [outLeg, inLeg]);
+    return;
+  }
+
+  await createRecords<TransactionFields>("transactions", [
+    {
+      id: newId("txn"),
+      account_id: input.account_id,
+      type: input.type,
+      amount,
+      category_id: input.category_id,
+      merchant: input.merchant,
+      date: input.date,
+      note: input.note,
+      created_at: createdAt,
+      // Immutable snapshot of what was entered at creation — never
+      // rewritten by later edits (per schema doc).
+      raw_data_merchant: input.merchant,
+      raw_data_category_id: input.category_id,
+      raw_data_note: input.note,
+    } as TransactionFields,
+  ]);
   // nowIST().toISOString() prints with a trailing "Z" but the clock digits
   // are IST wall-time, not UTC — intentional: created_at is kept as opaque
-  // raw text for sub-day ordering (per schema doc), never parsed back as a
-  // real UTC instant, so what matters is that IST timestamps sort correctly
-  // against each other.
-  await createRecords<TransactionFields>("transactions", [
-    { id: newId("txn"), created_at: nowIST().toISOString(), ...input } as TransactionFields,
-  ]);
+  // raw text for sub-day ordering, never parsed back as a real UTC instant.
 }
 
 export async function updateTransaction(appId: string, input: TransactionInput) {
+  const existing = await getTransaction(appId);
+  if (!existing) throw new Error(`Transaction ${appId} not found`);
   const recordId = await findRecordIdByAppId("transactions", appId);
   if (!recordId) throw new Error(`Transaction ${appId} not found`);
-  await updateRecords<TransactionFields>("transactions", [{ id: recordId, fields: input }]);
+
+  const amount = Math.abs(input.amount);
+  // edited flips true the first time merchant/category diverge from the
+  // original raw_data snapshot — matches the old app's rule. Amount/date/
+  // account changes don't affect this flag.
+  const edited =
+    existing.edited === true ||
+    input.merchant !== existing.raw_data_merchant ||
+    input.category_id !== existing.raw_data_category_id;
+
+  const fields: Partial<TransactionFields> = {
+    account_id: input.account_id,
+    type: input.type,
+    amount,
+    category_id: input.category_id,
+    merchant: input.merchant,
+    date: input.date,
+    note: input.note,
+    edited,
+  };
+
+  await updateRecords<TransactionFields>("transactions", [{ id: recordId, fields }]);
+
+  // Transfer legs must stay consistent — propagate shared fields (amount,
+  // date, note, category) to the linked leg. account_id/direction/links
+  // are per-leg and untouched.
+  if (existing.transfer_id && existing.linked_transaction_id) {
+    const linkedRecordId = await findRecordIdByAppId("transactions", existing.linked_transaction_id);
+    if (linkedRecordId) {
+      await updateRecords<TransactionFields>("transactions", [
+        {
+          id: linkedRecordId,
+          fields: { amount, date: input.date, note: input.note, category_id: input.category_id },
+        },
+      ]);
+    }
+  }
 }
 
 export async function deleteTransaction(appId: string) {
+  const existing = await getTransaction(appId);
+  if (!existing) throw new Error(`Transaction ${appId} not found`);
   const recordId = await findRecordIdByAppId("transactions", appId);
   if (!recordId) throw new Error(`Transaction ${appId} not found`);
+
+  // Delete both legs of a transfer together, never just one.
+  if (existing.transfer_id && existing.linked_transaction_id) {
+    const linkedRecordId = await findRecordIdByAppId("transactions", existing.linked_transaction_id);
+    await deleteRecords("transactions", linkedRecordId ? [recordId, linkedRecordId] : [recordId]);
+    return;
+  }
+
   await deleteRecords("transactions", [recordId]);
 }
